@@ -4,7 +4,10 @@ go 1.24.3
 
 require github.com/prometheus/client_golang v1.22.0
 
-require github.com/stretchr/testify v1.10.0
+require (
+	github.com/google/uuid v1.6.0
+	github.com/stretchr/testify v1.10.0
+)
 
 require (
 	github.com/beorn7/perks v1.0.1 // indirect

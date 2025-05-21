@@ -213,7 +213,7 @@ func (headers *SipHeaders) Delete(headerName string) bool {
 
 func (headers *SipHeaders) ContainsToTag() bool {
 	toheader := headers._map["to"]
-	return strings.Contains(ASCIIToLower(toheader[0]), "tag")
+	return strings.Contains(ASCIIToLower(toheader[0]), ";tag=")
 }
 
 func (headers *SipHeaders) AnyMandatoryHeadersMissing(m Method) (bool, string) {

@@ -55,7 +55,7 @@ type Transaction struct {
 
 func NewST() *Transaction {
 	trans := &Transaction{
-		Key:       guid.GetKey(),
+		Key:       guid.NewKey(),
 		TransTime: time.Now(),
 	}
 	return trans

@@ -80,13 +80,13 @@ func (session *SipSession) createHeadersForResponse(trans *Transaction, rspnspk 
 
 	// Add tags and PRACK headers for responses > 100
 	if sc > 100 {
-		if !hdrs.ContainsToTag() && Is18xOrPositive(sc) && session.Direction == INBOUND {
-			if session.ToTag == "" {
+		if !hdrs.ContainsToTag() && session.Direction == INBOUND {
+			if Is18xOrPositive(sc) && session.ToTag == "" {
 				session.ToTag = guid.NewTag()
+				session.ToHeader = fmt.Sprintf("%s;tag=%s", hdrs.ValueHeader(To), session.ToTag)
+				trans.To = session.ToHeader
 			}
-			session.ToHeader = fmt.Sprintf("%s;tag=%s", hdrs.ValueHeader(To), session.ToTag)
 			hdrs.SetHeader(To, session.ToHeader)
-			trans.To = session.ToHeader
 		}
 
 		hdrs.AddHeaderValues(Record_Route, session.RecordRoutes)
