@@ -26,6 +26,7 @@ func (session *SipSession) addIncomingRequest(requestMsg *SipMessage, lt *Transa
 		}
 	}
 
+	//nolint:exhaustive
 	switch rType {
 	case ACK:
 		reInviteST := session.GetReOrInviteTransaction(requestMsg.CSeqNum, true)
@@ -125,6 +126,7 @@ func (session *SipSession) addIncomingResponse(responseMsg *SipMessage) *Transac
 	return st
 }
 
+//nolint:cyclop
 func (session *SipSession) addOutgoingRequest(rt Method, lt *Transaction) *Transaction {
 	// Reject any pending incoming requests before sending BYE
 	if rt == BYE {
@@ -139,6 +141,7 @@ func (session *SipSession) addOutgoingRequest(rt Method, lt *Transaction) *Trans
 	var st *Transaction
 
 	if session.Direction == OUTBOUND {
+		//nolint:exhaustive
 		switch rt {
 		case ACK:
 			if lt == nil {
@@ -159,9 +162,9 @@ func (session *SipSession) addOutgoingRequest(rt Method, lt *Transaction) *Trans
 		default:
 			// Increment forward CSeq
 			if session.FwdCSeq == 0 {
-				session.FwdCSeq = uint32(RandomNum(0, 500))
+				session.FwdCSeq = RandomNum(0, 500)
 			} else {
-				session.FwdCSeq += 1
+				session.FwdCSeq++
 			}
 			if rt == PRACK {
 				st = lt // LT is already created using GenerateOutgoingPRACKST
@@ -181,9 +184,9 @@ func (session *SipSession) addOutgoingRequest(rt Method, lt *Transaction) *Trans
 		} else {
 			// Increment backward CSeq
 			if session.BwdCSeq == 0 {
-				session.BwdCSeq = uint32(RandomNum(600, 1000))
+				session.BwdCSeq = RandomNum(600, 1000)
 			} else {
-				session.BwdCSeq += 1
+				session.BwdCSeq++
 			}
 			st = NewSIPTransaction_CRL(session.BwdCSeq, rt, lt)
 			session.AddTransaction(st)

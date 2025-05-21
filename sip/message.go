@@ -15,7 +15,7 @@ import (
 
 type SipMessage struct {
 	MsgType   MessageType
-	StartLine *SipStartLine
+	StartLine *StartLine
 	Headers   *SipHeaders
 	Body      *MessageBody
 
@@ -43,7 +43,7 @@ type SipMessage struct {
 func NewRequestMessage(md Method, up string) *SipMessage {
 	sipmsg := &SipMessage{
 		MsgType: REQUEST,
-		StartLine: &SipStartLine{
+		StartLine: &StartLine{
 			Method:     md,
 			UriScheme:  "sip",
 			UserPart:   up,
@@ -60,7 +60,7 @@ func NewResponseMessage(sc int, rp string) *SipMessage {
 	}
 	sipmsg := &SipMessage{
 		MsgType: RESPONSE,
-		StartLine: &SipStartLine{
+		StartLine: &StartLine{
 			StatusCode:   sc,
 			ReasonPhrase: cmp.Or(rp, DicResponse[sc], DicResponse[(sc/100)*100]),
 		},
@@ -398,7 +398,7 @@ func (sipmsg *SipMessage) PrepareMessageBytes(ss *SipSession) {
 				sipmsg.Headers.SetHeader(MIME_Version, "")
 				bb2.Write(v.Bytes)
 			} else {
-				sipmsg.Headers.SetHeader(Content_Type, fmt.Sprintf("multipart/mixed;boundary=%s", MultipartBoundary))
+				sipmsg.Headers.SetHeader(Content_Type, "multipart/mixed;boundary="+MultipartBoundary)
 				sipmsg.Headers.SetHeader(MIME_Version, "1.0")
 				isfirstline := true
 				for _, ct := range bdyparts {

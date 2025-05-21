@@ -39,9 +39,9 @@ func (g *Guid) toString(isfull bool, prfx string) string {
 		return fmt.Sprintf("%s-%s-%x-%x-%x-%x-%x", prfx[:n], prfx[n:], g[0:4], g[4:6], g[6:8], g[8:10], g[10:16])
 	}
 	if prfx == "" {
-		return fmt.Sprintf("%x", g[8:14])
+		return hex.EncodeToString(g[8:14])
 	}
-	return fmt.Sprintf("%s%x", prfx, g[8:16])
+	return fmt.Sprintf("%s%s", prfx, hex.EncodeToString(g[8:16]))
 }
 
 func generateRandomHex(n int) string {

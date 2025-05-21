@@ -104,6 +104,7 @@ func (session *SipSession) ExceedCondition() bool {
 
 //============================================================
 
+//nolint:cyclop
 func (session *SipSession) GetTransactionSYNC(SIPMsg *SipMessage) *Transaction {
 	session.TransLock.RLock()
 	defer session.TransLock.RUnlock()
@@ -118,13 +119,12 @@ func (session *SipSession) GetTransactionSYNC(SIPMsg *SipMessage) *Transaction {
 					(CSeqRT == ACK && x.Method.RequiresACK() && x.IsACKed && session.FromTag == SIPMsg.FromTag &&
 						(session.ToTag == "" || session.ToTag == SIPMsg.ToTag)))
 		})
-	} else {
-		CSeqRT = SIPMsg.CSeqMethod
-		return Find(session.Transactions, func(x *Transaction) bool {
-			return x.Direction == OUTBOUND && x.ViaBranch == SIPMsg.ViaBranch && x.CSeq == CSeqNum &&
-				(x.Method == CSeqRT || (CSeqRT == INVITE && x.Method == ReINVITE))
-		})
 	}
+	CSeqRT = SIPMsg.CSeqMethod
+	return Find(session.Transactions, func(x *Transaction) bool {
+		return x.Direction == OUTBOUND && x.ViaBranch == SIPMsg.ViaBranch && x.CSeq == CSeqNum &&
+			(x.Method == CSeqRT || (CSeqRT == INVITE && x.Method == ReINVITE))
+	})
 }
 
 func (session *SipSession) IsDuplicateMessage(msg *SipMessage) bool {
@@ -229,7 +229,7 @@ func (session *SipSession) GenerateRSeqCreatePRACKSTSYNC(linkedPRACKST *Transact
 	session.TransLock.Lock()
 	defer session.TransLock.Unlock()
 	if session.RSeq == 0 {
-		session.RSeq = uint32(RandomNum(1, 999))
+		session.RSeq = RandomNum(1, 999)
 	} else {
 		session.RSeq++
 	}
@@ -434,6 +434,7 @@ func (session *SipSession) sendmessage(msg *SipMessage, rmt *net.UDPAddr) {
 	}
 }
 
+//nolint:cyclop,exhaustive
 func CheckPendingTransaction(ss *SipSession, tx *Transaction) {
 	// TODO: incomplete!!!
 	switch tx.Method {
@@ -536,9 +537,8 @@ func (ss *SipSession) setTimerPointer(tt TimerType, tmr *SipTimer) {
 func (ss *SipSession) getTimerPointer(tt TimerType) *SipTimer {
 	if tt == NoAnswer {
 		return ss.noAnsSTimer
-	} else {
-		return ss.no18xSTimer
 	}
+	return ss.no18xSTimer
 }
 
 func (ss *SipSession) StartTimer(tt TimerType) {

@@ -12,26 +12,26 @@ const (
 	EntityName = "OINIS-NSF"
 	B2BUAName  = "SRGo/1.5"
 
-	BufferSize          int    = 4096
-	T1Timer             int    = 500
-	ReTXCount           int    = 5
-	SipPort             int    = 5060
-	MaxPort             int    = 65535
+	BufferSize                 = 4096
+	T1Timer                    = 500
+	ReTXCount                  = 5
+	SipPort                    = 5060
+	MaxPort                    = 65535
 	MultipartBoundary   string = "unique-boundary-1"
 	SipVersion          string = "SIP/2.0"
 	DeltaRune           rune   = 'a' - 'A'
 	MagicCookie         string = "z9hG4bK"
 	AllowedMethods      string = "INVITE, PRACK, ACK, CANCEL, BYE, OPTIONS, UPDATE, INFO, REGISTER, REFER, SUBSCRIBE, NOTIFY, PUBLISH, MESSAGE"
-	SessionDropDelaySec int    = 4 // seconds
-	MinMaxFwds          int    = 1
-	OodProbingSec       int    = 60 // seconds
-	IdProbingSec        int    = 60 // seconds
+	SessionDropDelaySec        = 4 // seconds
+	MinMaxFwds                 = 1
+	OodProbingSec              = 60 // seconds
+	IdProbingSec               = 60 // seconds
 )
 
 var (
 	SipUdpPort  int // TODO add a list of listening UDP ports if needed later, for now, it is a single port
 	HttpTcpPort int
-	RateLimit   int = -1 // TODO 2000 || 0 = switched off, -1 = unlimited, > 0 = limited
+	RateLimit   = -1 // TODO 2000 || 0 = switched off, -1 = unlimited, > 0 = limited
 
 	BufferPool  *sync.Pool
 	Prometrics  *prometheus.Metrics
@@ -510,6 +510,8 @@ var (
 // =================================================================
 
 // Response Headers
+//
+//nolint:cyclop
 func responsesHeadersInit() {
 	for Rspns := 100; Rspns <= 699; Rspns++ {
 		var HDRs []string

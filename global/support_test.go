@@ -1,6 +1,7 @@
-package global
+package global_test
 
 import (
+	"SRGo/global"
 	"reflect"
 	"testing"
 )
@@ -13,8 +14,8 @@ func TestStr2IntDefaultMinMax(t *testing.T) {
 	tests := []struct {
 		input    string
 		defaultV int
-		min      int
-		max      int
+		minlmt   int
+		maxlmt   int
 		expected int
 		valid    bool
 	}{
@@ -34,10 +35,10 @@ func TestStr2IntDefaultMinMax(t *testing.T) {
 	}
 
 	for _, test := range tests {
-		result, valid := Str2IntDefaultMinMax(test.input, test.defaultV, test.min, test.max)
+		result, valid := global.Str2IntDefaultMinMax(test.input, test.defaultV, test.minlmt, test.maxlmt)
 		if result != test.expected || valid != test.valid {
 			t.Errorf("Str2IntDefaultMinimum(%q, %d, %d) = (%d, %v); want (%d, %v)",
-				test.input, test.defaultV, test.min, result, valid, test.expected, test.valid)
+				test.input, test.defaultV, test.minlmt, result, valid, test.expected, test.valid)
 		}
 	}
 }
@@ -68,17 +69,16 @@ func TestCleanAndSplitHeader(t *testing.T) {
 	}
 
 	for _, test := range tests {
-		result := CleanAndSplitHeader(test.input, test.dropDQ)
+		result := global.CleanAndSplitHeader(test.input, test.dropDQ)
 		if !reflect.DeepEqual(result, test.expected) {
 			t.Errorf("CleanAndSplitHeader(%q, %v) = %v; want %v", test.input, test.dropDQ, result, test.expected)
 		}
 	}
 
 	for _, test := range tests {
-		result := ExtractParameters(test.input, true)
+		result := global.ExtractParameters(test.input, true)
 		if !reflect.DeepEqual(result, test.expected) {
 			t.Errorf("ExtractParameters(%q, %v) = %v; want %v", test.input, true, result, test.expected)
 		}
 	}
-
 }

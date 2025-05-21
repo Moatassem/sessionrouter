@@ -18,7 +18,7 @@ func (session *SipSession) CreateSARequest(rqstpk RequestPack, body MessageBody)
 		session.Mymode = mode.Multimedia
 		fallthrough
 	default: // Any other
-		session.FwdCSeq = uint32(RandomNum(1, 500))
+		session.FwdCSeq = RandomNum(1, 500)
 	}
 	st := NewSIPTransaction_CRL(session.FwdCSeq, rqstpk.Method, nil)
 	session.prepareSARequestHeaders(st, rqstpk, body)
@@ -135,7 +135,8 @@ func (session *SipSession) SendCreatedRequestDetailed(rqstpk RequestPack, trans 
 }
 
 // helper functions
-
+//
+//nolint:cyclop
 func (session *SipSession) proxifyRequestHeaders(sipmsg *SipMessage, trans *Transaction) {
 	lnkdsipmsg := session.LinkedSession.CurrentRequestMessage()
 	sipHdrs := sipmsg.Headers
@@ -257,6 +258,7 @@ func (session *SipSession) proxifyRequestHeaders(sipmsg *SipMessage, trans *Tran
 	sipHdrs.SetHeader(Max_Forwards, Int2Str(maxForwards))
 }
 
+//nolint:cyclop
 func (session *SipSession) prepareRequestHeaders(trans *Transaction, rqstpk RequestPack, sipmsg *SipMessage) {
 	hdrs := NewSHsPointer(true)
 	sipmsg.Headers = hdrs
@@ -318,6 +320,8 @@ func (session *SipSession) prepareRequestHeaders(trans *Transaction, rqstpk Requ
 }
 
 // shared between subsequent requests and linked INVITE
+//
+//nolint:cyclop
 func (session *SipSession) processRequestHeaders(trans *Transaction, sipmsg *SipMessage, rqstpk RequestPack, msgBody MessageBody) {
 	hdrs := sipmsg.Headers
 

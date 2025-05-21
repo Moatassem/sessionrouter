@@ -126,7 +126,7 @@ func GetNextIndex(pdu []byte, markstrng string) int {
 
 func GetUsedSize(pdu []byte) int {
 	sz := len(pdu)
-	for i := 0; i < sz; i++ {
+	for i := range sz {
 		if pdu[i] == 0 {
 			return i
 		}
@@ -134,6 +134,7 @@ func GetUsedSize(pdu []byte) int {
 	return sz
 }
 
+//nolint:cyclop
 func CleanAndSplitHeader(HeaderValue string, DropParameterValueDQ ...bool) map[string]string {
 	if HeaderValue == "" {
 		return nil
@@ -279,9 +280,9 @@ func GenerateParameters(pars map[string]string) string {
 	return sb.String()
 }
 
-func RandomNum(min, max uint32) uint32 {
+func RandomNum(minlmt, maxlmt uint32) uint32 {
 	//#nosec G404: Ignoring gosec error - crypto is not required
-	return rand.Uint32N(max-min+1) + min
+	return rand.Uint32N(maxlmt-minlmt+1) + minlmt
 }
 
 func GetBodyType(contentType string) BodyType {
@@ -300,10 +301,10 @@ func GetBodyType(contentType string) BodyType {
 // ==========================================================================================
 
 // Convert string to int with default value with included minimum or maximum
-func Str2IntDefaultMinMax[T int | int8 | int16 | int32 | int64](s string, d, min, max T) (T, bool) {
+func Str2IntDefaultMinMax[T int | int8 | int16 | int32 | int64](s string, d, minlmt, maxlmt T) (T, bool) {
 	out, ok := Str2IntCheck[T](s)
 	if ok {
-		if out < min || out > max {
+		if out < minlmt || out > maxlmt {
 			return d, false
 		}
 		return out, true
@@ -386,7 +387,7 @@ func Str2Uint[T uint | uint8 | uint16 | uint32 | uint64](s string) T {
 	if len(s) == 0 {
 		return out
 	}
-	for i := 0; i < len(s); i++ {
+	for i := range len(s) {
 		if s[i] < '0' || s[i] > '9' {
 			return out
 		}
@@ -761,12 +762,11 @@ outerloop:
 				} else if c == '{' {
 					if grpsb.Len() == 0 {
 						break
-					} else {
-						b.WriteByte(c)
-						v := item(sbToInt(grpsb), false)
-						b.WriteString(v)
-						continue outerloop
 					}
+					b.WriteByte(c)
+					v := item(sbToInt(grpsb), false)
+					b.WriteString(v)
+					continue outerloop
 				} else {
 					if grpsb.Len() == 0 {
 						b.WriteByte('$')
@@ -861,6 +861,7 @@ func Stringlen(s string) int {
 	return utf8.RuneCountInString(s)
 }
 
+//nolint:exhaustive
 func (m Method) IsDialogueCreating() bool {
 	switch m {
 	case OPTIONS, INVITE: // MESSAGE, NEGOTIATE
@@ -869,6 +870,7 @@ func (m Method) IsDialogueCreating() bool {
 	return false
 }
 
+//nolint:exhaustive
 func (m Method) RequiresACK() bool {
 	switch m {
 	case INVITE, ReINVITE:

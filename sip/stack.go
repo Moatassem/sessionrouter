@@ -25,7 +25,7 @@ func processPDU(payload []byte) (*SipMessage, []byte, error) {
 	}()
 
 	var msgType MessageType
-	var startLine SipStartLine
+	var startLine StartLine
 
 	sipmsg := new(SipMessage)
 	msgmap := NewSHsPointer(false)
@@ -85,7 +85,7 @@ func processPDU(payload []byte) (*SipMessage, []byte, error) {
 	sipmsg.MsgType = msgType
 	sipmsg.StartLine = &startLine
 
-	lnIdx += 1
+	lnIdx++
 
 	// headers parsing
 
@@ -266,6 +266,7 @@ func processPDU(payload []byte) (*SipMessage, []byte, error) {
 					}
 				}
 			}
+			//nolint:exhaustive
 			switch bt {
 			case None:
 				LogError(LTBadSIPMessage, "Missing body part Content-Type - skipped")
@@ -290,6 +291,7 @@ func processPDU(payload []byte) (*SipMessage, []byte, error) {
 	return sipmsg, payload, nil
 }
 
+//nolint:cyclop
 func sessionGetter(sipmsg *SipMessage) (*SipSession, NewSessionType) {
 	defer func() {
 		if r := recover(); r != nil {
@@ -425,6 +427,7 @@ func sipStack(sipmsg *SipMessage, ss *SipSession, newSesType NewSessionType) {
 			ss.SendCreatedResponse(trans, status.UnsupportedMediaType, EmptyBody())
 			return
 		}
+		//nolint:exhaustive
 		switch sipmsg.GetMethod() {
 		case INVITE:
 			ss.SendCreatedResponse(trans, status.Trying, EmptyBody())
@@ -702,6 +705,7 @@ func sipStack(sipmsg *SipMessage, ss *SipSession, newSesType NewSessionType) {
 				}
 			case stsCode <= 399:
 			default: // 400-699
+				//nolint:exhaustive
 				switch trans.Method {
 				case OPTIONS: // probing or keepalive
 					if ss.Mymode == mode.KeepAlive {

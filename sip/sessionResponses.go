@@ -29,6 +29,7 @@ func (session *SipSession) SendCreatedResponseDetailed(trans *Transaction, rspsp
 	session.SendSTMessage(trans)
 }
 
+//nolint:cyclop
 func (session *SipSession) createHeadersForResponse(trans *Transaction, rspnspk ResponsePack) *SipHeaders {
 	hdrs := NewSHsPointer(true)
 	sc := rspnspk.StatusCode

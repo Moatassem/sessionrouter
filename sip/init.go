@@ -181,10 +181,7 @@ func worker(conn *net.UDPConn, queue <-chan Packet) {
 
 func processPacket(packet Packet, conn *net.UDPConn) {
 	pdu := (*packet.buffer)[:packet.bytesCount]
-	for {
-		if len(pdu) == 0 {
-			break
-		}
+	for len(pdu) > 0 {
 		msg, pdutmp, err := processPDU(pdu)
 		if err != nil {
 			fmt.Println("Bad PDU -", err)

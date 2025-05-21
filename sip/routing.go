@@ -90,6 +90,7 @@ func (ss1 *SipSession) RouteRequest(trans1 *Transaction, sipmsg1 *SipMessage) {
 	ss2.SendSTMessage(trans2)
 }
 
+//nolint:cyclop
 func (ss1 *SipSession) RouteRequestInternal(trans1 *Transaction, sipmsg1 *SipMessage) {
 	defer func() {
 		if r := recover(); r != nil {

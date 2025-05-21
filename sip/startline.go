@@ -8,8 +8,8 @@ import (
 
 // -------------------------------------------
 
-type SipStartLine struct {
-	Method
+type StartLine struct {
+	Method         Method
 	UriScheme      string
 	UserPart       string
 	OriginalUP     string
@@ -26,7 +26,7 @@ type SipStartLine struct {
 	UriHeaders    string
 }
 
-func (ssl *SipStartLine) BuildRURI(useOriginalUP bool) {
+func (ssl *StartLine) BuildRURI(useOriginalUP bool) {
 	var up string
 	if useOriginalUP {
 		up = ssl.OriginalUP
@@ -40,7 +40,7 @@ func (ssl *SipStartLine) BuildRURI(useOriginalUP bool) {
 	ssl.RUri = fmt.Sprintf("%s:%s%s%s@%s%s%s", ssl.UriScheme, up, GenerateParameters(ssl.UserParameters), ssl.Password, ssl.HostPart, GenerateParameters(ssl.UriParameters), ssl.UriHeaders)
 }
 
-func (ssl *SipStartLine) GetStartLine(mt MessageType) string {
+func (ssl *StartLine) GetStartLine(mt MessageType) string {
 	if mt == REQUEST {
 		return fmt.Sprintf("%s %s %s\r\n", ssl.Method.String(), ssl.RUri, SipVersion)
 	}
@@ -48,7 +48,7 @@ func (ssl *SipStartLine) GetStartLine(mt MessageType) string {
 }
 
 type RequestPack struct {
-	Method
+	Method        Method
 	RUriUP        string
 	FromUP        string
 	Max70         bool
