@@ -1,0 +1,24 @@
+issues:
+  exclude-rules:
+    - path: ".*\\/main_test.go$"
+      linters:
+        - exhaustruct
+        - tparallel
+        - paralleltest
+    - linters:
+        - stylecheck
+      text: "ST1003:"
+linters:
+  disable:
+    - depguard
+    - gci
+    # - gofumpt
+    - govet
+    - varnamelen
+    - wrapcheck # because it's simply stupid
+    - funlen
+    - lll
+    - dupl # because too much factorisation reduces readability
+    # - ireturn
+    - tenv
+  enable-all: true

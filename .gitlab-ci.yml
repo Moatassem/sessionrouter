@@ -1,0 +1,54 @@
+include:
+    - component: $CI_SERVER_FQDN/to-be-continuous/docker/gitlab-ci-docker@6.1.6
+      inputs:
+            build-tool: kaniko
+            # registry-mirror: "$CI_REGISTRY/$CI_PROJECT_NAMESPACE"
+            snapshot-image: $ARTI_DOCKER_SNAPSHOT_IMAGE/srgo/srgo:$CI_COMMIT_REF_SLUG
+            release-image: $ARTI_DOCKER_RELEASE_IMAGE/srgo/srgo:$CI_COMMIT_REF_NAME
+            release-extra-tags-pattern: "^(?P<tag>.+)$"
+            release-extra-tags: "latest $CI_COMMIT_REF_SLUG"
+            hadolint-args: "--failure-threshold error"
+            prod-publish-strategy: auto
+    - component: $CI_SERVER_FQDN/to-be-continuous/golang/gitlab-ci-golang@4.11.1
+    - project: 'to-be-continuous/gitleaks'
+      ref: '2.6.1'
+      file: '/templates/gitlab-ci-gitleaks.yml'
+
+variables:
+### CI/CD tools variables
+  DOCKER_TRIVY_DISABLED: "false"
+  DOCKER_HADOLINT_DISABLED: "false"
+  TRIVY_DISABLE_VEX_NOTICE: "true"
+### The following can be globalized after all components and tools 
+### are configured to use the new Docker registry
+  DOCKER_REGISTRY_SNAPSHOT_USER: $ARTI_REPO_USER
+  DOCKER_REGISTRY_RELEASE_USER: $ARTI_REPO_USER
+  DOCKER_REGISTRY_SNAPSHOT_PASSWORD: $ARTI_REPO_TOKEN
+  DOCKER_REGISTRY_RELEASE_PASSWORD: $ARTI_REPO_TOKEN
+
+
+gitleaks:
+  allow_failure: true    
+  retry: 2
+
+docker-trivy:
+  allow_failure: true
+  retry: 2
+
+go-ci-lint:
+  allow_failure: true
+
+go-sbom:
+  allow_failure: true
+
+go-semgrep:
+  allow_failure: true
+
+stages: # List of stages for jobs, and their order of execution      
+  - test
+  - build
+  - package-build
+  - package-test
+  - publish
+  - pages
+  - deploy

@@ -1,0 +1,43 @@
+version: "2"
+linters:
+  default: all
+  disable:
+    - depguard
+    - dupl
+    - funlen
+    - govet
+    - lll
+    - varnamelen
+    - wrapcheck
+    - wsl
+  exclusions:
+    generated: lax
+    presets:
+      - comments
+      - common-false-positives
+      - legacy
+      - std-error-handling
+    rules:
+      - linters:
+          - exhaustruct
+          - paralleltest
+          - tparallel
+        path: .*\/main_test.go$
+      - linters:
+          - staticcheck
+        text: "ST1003:"
+    paths:
+      - third_party$
+      - builtin$
+      - examples$
+formatters:
+  enable:
+    - gofmt
+    - gofumpt
+    - goimports
+  exclusions:
+    generated: lax
+    paths:
+      - third_party$
+      - builtin$
+      - examples$
