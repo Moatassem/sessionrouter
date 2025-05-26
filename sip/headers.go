@@ -34,24 +34,24 @@ func NewSHsPointer(setDefaults bool) *SipHeaders {
 	return &headers
 }
 
-func NewSHQ850OrSIP(Q850OrSIP int, Details string, retryAfter string) SipHeaders {
+func NewSHQ850OrSIP(q850OrSip int, details string, retryAfter string) SipHeaders {
 	headers := NewSipHeaders()
 	if retryAfter != "" {
 		headers.AddHeader(Retry_After, retryAfter)
 	}
-	if Q850OrSIP == 0 {
-		if strings.TrimSpace(Details) != "" {
-			headers.AddHeader(Warning, fmt.Sprintf("399 SRGo \"%s\"", Details))
+	if q850OrSip == 0 {
+		if strings.TrimSpace(details) != "" {
+			headers.AddHeader(Warning, fmt.Sprintf("399 SRGo \"%s\"", details))
 		}
 	} else {
 		var reason string
-		if Q850OrSIP <= 127 {
-			reason = "Q.850;cause=" + Int2Str(Q850OrSIP)
+		if q850OrSip <= 127 {
+			reason = "Q.850;cause=" + Int2Str(q850OrSip)
 		} else {
-			reason = "SIP;cause=" + Int2Str(Q850OrSIP)
+			reason = "SIP;cause=" + Int2Str(q850OrSip)
 		}
-		if strings.TrimSpace(Details) != "" {
-			reason += fmt.Sprintf(";text=\"%s\"", Details)
+		if strings.TrimSpace(details) != "" {
+			reason += fmt.Sprintf(";text=\"%s\"", details)
 		}
 		headers.AddHeader(Reason, reason)
 	}

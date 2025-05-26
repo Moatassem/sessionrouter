@@ -306,17 +306,17 @@ func (sipmsg *SipMessage) GetRegistrationData() (contact, ext, ruri, ipport stri
 	return
 }
 
-func (sipmsg *SipMessage) TranslateRM(ss *SipSession, tx *Transaction, nt numtype.NumberType, NewNumber string) {
-	if NewNumber == "" {
+func (sipmsg *SipMessage) TranslateRM(ss *SipSession, tx *Transaction, nt numtype.NumberType, newNumber string) {
+	if newNumber == "" {
 		return
 	}
 	localsocket := GetUDPAddrFromConn(ss.UDPListenser)
-	rep := fmt.Sprintf("${1}%s$2", NewNumber)
+	rep := fmt.Sprintf("${1}%s$2", newNumber)
 
 	switch nt {
 	case numtype.CalledRURI:
 		sipmsg.StartLine.RUri = RReplaceNumberOnly(sipmsg.StartLine.RUri, rep)
-		sipmsg.StartLine.UserPart = NewNumber
+		sipmsg.StartLine.UserPart = newNumber
 		ss.RemoteContactURI = sipmsg.StartLine.RUri
 	case numtype.CalledTo:
 		sipmsg.Headers.SetHeader(To, RReplaceNumberOnly(sipmsg.Headers.ValueHeader(To), rep))
@@ -324,7 +324,7 @@ func (sipmsg *SipMessage) TranslateRM(ss *SipSession, tx *Transaction, nt numtyp
 		tx.To = ss.ToHeader
 	case numtype.CalledBoth:
 		sipmsg.StartLine.RUri = RReplaceNumberOnly(sipmsg.StartLine.RUri, rep)
-		sipmsg.StartLine.UserPart = NewNumber
+		sipmsg.StartLine.UserPart = newNumber
 		ss.RemoteContactURI = sipmsg.StartLine.RUri
 
 		sipmsg.Headers.SetHeader(To, RReplaceNumberOnly(sipmsg.Headers.ValueHeader(To), rep))
@@ -338,13 +338,13 @@ func (sipmsg *SipMessage) TranslateRM(ss *SipSession, tx *Transaction, nt numtyp
 		if sipmsg.Headers.HeaderExists(P_Asserted_Identity.String()) {
 			sipmsg.Headers.SetHeader(P_Asserted_Identity, RReplaceNumberOnly(sipmsg.Headers.ValueHeader(P_Asserted_Identity), rep))
 		} else {
-			sipmsg.Headers.SetHeader(P_Asserted_Identity, fmt.Sprintf("<sip:%s@%s;user=phone>", NewNumber, localsocket.IP))
+			sipmsg.Headers.SetHeader(P_Asserted_Identity, fmt.Sprintf("<sip:%s@%s;user=phone>", newNumber, localsocket.IP))
 		}
 	case numtype.CallingBoth:
 		if sipmsg.Headers.HeaderExists(P_Asserted_Identity.String()) {
 			sipmsg.Headers.SetHeader(P_Asserted_Identity, RReplaceNumberOnly(sipmsg.Headers.ValueHeader(P_Asserted_Identity), rep))
 		} else {
-			sipmsg.Headers.SetHeader(P_Asserted_Identity, fmt.Sprintf("<sip:%s@%s;user=phone>", NewNumber, localsocket.IP))
+			sipmsg.Headers.SetHeader(P_Asserted_Identity, fmt.Sprintf("<sip:%s@%s;user=phone>", newNumber, localsocket.IP))
 		}
 
 		sipmsg.Headers.SetHeader(From, RReplaceNumberOnly(sipmsg.Headers.ValueHeader(From), rep))

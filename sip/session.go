@@ -105,24 +105,24 @@ func (session *SipSession) ExceedCondition() bool {
 //============================================================
 
 //nolint:cyclop
-func (session *SipSession) GetTransactionSYNC(SIPMsg *SipMessage) *Transaction {
+func (session *SipSession) GetTransactionSYNC(sipmsg *SipMessage) *Transaction {
 	session.TransLock.RLock()
 	defer session.TransLock.RUnlock()
 
 	var CSeqRT Method
-	CSeqNum := SIPMsg.CSeqNum
-	if SIPMsg.IsRequest() {
-		CSeqRT = SIPMsg.GetMethod()
+	CSeqNum := sipmsg.CSeqNum
+	if sipmsg.IsRequest() {
+		CSeqRT = sipmsg.GetMethod()
 		return Find(session.Transactions, func(x *Transaction) bool {
 			return x.Direction == INBOUND && x.CSeq == CSeqNum &&
-				((x.Method == CSeqRT && x.ViaBranch == SIPMsg.ViaBranch) ||
-					(CSeqRT == ACK && x.Method.RequiresACK() && x.IsACKed && session.FromTag == SIPMsg.FromTag &&
-						(session.ToTag == "" || session.ToTag == SIPMsg.ToTag)))
+				((x.Method == CSeqRT && x.ViaBranch == sipmsg.ViaBranch) ||
+					(CSeqRT == ACK && x.Method.RequiresACK() && x.IsACKed && session.FromTag == sipmsg.FromTag &&
+						(session.ToTag == "" || session.ToTag == sipmsg.ToTag)))
 		})
 	}
-	CSeqRT = SIPMsg.CSeqMethod
+	CSeqRT = sipmsg.CSeqMethod
 	return Find(session.Transactions, func(x *Transaction) bool {
-		return x.Direction == OUTBOUND && x.ViaBranch == SIPMsg.ViaBranch && x.CSeq == CSeqNum &&
+		return x.Direction == OUTBOUND && x.ViaBranch == sipmsg.ViaBranch && x.CSeq == CSeqNum &&
 			(x.Method == CSeqRT || (CSeqRT == INVITE && x.Method == ReINVITE))
 	})
 }

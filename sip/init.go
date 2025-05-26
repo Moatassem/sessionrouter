@@ -161,7 +161,7 @@ func udpLoopWorkers(conn *net.UDPConn) {
 	}()
 	go func() {
 		for {
-			buf := BufferPool.Get().(*[]byte)
+			buf, _ := BufferPool.Get().(*[]byte)
 			n, addr, err := conn.ReadFromUDP(*buf)
 			if err != nil {
 				fmt.Println(err)
