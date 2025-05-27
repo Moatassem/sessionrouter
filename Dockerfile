@@ -1,10 +1,7 @@
-FROM dockerproxy.repos.tech.orange/golang:alpine AS build
-# FROM golang:1.23.4-alpine3.21
-LABEL maintainer="moatassem.talaat@orange.com"
+FROM 1.23.4-alpine3.21 AS build
 
-WORKDIR /SRGo
+WORKDIR /sessionrouter
 
-# pre-copy/cache go.mod for pre-downloading dependencies and only redownloading them in subsequent builds if they change
 COPY go.mod go.sum ./
 RUN go mod download
 RUN go mod verify
@@ -13,13 +10,12 @@ COPY . .
 RUN go build -o srgo .
 
 FROM dockerproxy.repos.tech.orange/alpine AS run
-LABEL maintainer="moatassem.talaat@orange.com"
 
-RUN mkdir /SRGo
+RUN mkdir /sessionrouter
 
-COPY --from=build /SRGo/srgo /SRGo/srgo
+COPY --from=build /sessionrouter/srgo /sessionrouter/srgo
 
-WORKDIR /SRGo
+WORKDIR /sessionrouter
 
 CMD ["./srgo"]
 
