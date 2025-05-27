@@ -1,4 +1,4 @@
-FROM 1.23.4-alpine3.21 AS build
+FROM go:1.23.4-alpine3.21 AS build
 
 WORKDIR /sessionrouter
 
@@ -9,7 +9,7 @@ RUN go mod verify
 COPY . .
 RUN go build -o srgo .
 
-FROM dockerproxy.repos.tech.orange/alpine AS run
+FROM alpine:3.21.3 AS run
 
 RUN mkdir /sessionrouter
 
