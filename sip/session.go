@@ -35,7 +35,7 @@ type SipSession struct {
 
 	Mymode mode.SessionMode
 
-	RoutingData *RoutingData
+	RoutingData *RoutingRecord
 
 	dscmutex         sync.RWMutex
 	dialogueChanging bool

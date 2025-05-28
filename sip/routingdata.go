@@ -10,15 +10,16 @@ import (
 )
 
 type (
-	RDB struct {
-		UserpartPattern string      `json:"userpartPattern"`
-		RD              RoutingData `json:"routingData"`
+	RawRoutingRecord struct {
+		UserpartPattern string        `json:"userpartPattern"`
+		RD              RoutingRecord `json:"routingRecord"`
 	}
 
-	RoutingData struct {
-		InRegex   *regexp.Regexp `json:"-"`
-		RemoteUDP *net.UDPAddr   `json:"-"`
-		IsDB      bool           `json:"-"`
+	RoutingRecord struct {
+		InRegex         *regexp.Regexp `json:"-"`
+		RemoteUDP       *net.UDPAddr   `json:"-"`
+		IsDB            bool           `json:"-"`
+		UserpartPattern string         `json:"userpartPattern"`
 
 		NoAnswerTimeout int `json:"noAnswerTimeout"`
 		No18xTimeout    int `json:"no18xTimeout"`
@@ -34,7 +35,7 @@ type (
 
 	RoutingEngine struct {
 		mu       sync.RWMutex
-		routings []*RoutingData
+		routings []*RoutingRecord
 	}
 )
 
@@ -56,14 +57,14 @@ func (re *RoutingEngine) ReadConfig(data []byte) {
 	re.mu.Lock()
 	defer re.mu.Unlock()
 
-	var rdp []RDB
+	var rdp []RawRoutingRecord
 	if err := json.Unmarshal(data, &rdp); err != nil {
 		return
 	}
 
 	total := len(rdp)
 
-	re.routings = make([]*RoutingData, 0, total)
+	re.routings = make([]*RoutingRecord, 0, total)
 
 	fmt.Println("Loading Routing DB...")
 	for _, r := range rdp {
@@ -73,14 +74,15 @@ func (re *RoutingEngine) ReadConfig(data []byte) {
 		}
 		upRegex, err := regexp.Compile(r.UserpartPattern)
 		if err != nil {
-			fmt.Println("Invalid UserpartPattern - ", err.Error())
+			fmt.Printf("Invalid UserpartPattern: %s - Skipped\n", err.Error())
 			continue
 		}
+		r.RD.UserpartPattern = upRegex.String()
 		r.RD.InRegex = upRegex
 		if r.RD.OutRuriHostport != "" {
 			uaddr, ok := global.BuildUdpAddr(r.RD.OutRuriHostport, global.SipPort)
 			if !ok {
-				fmt.Println("Bad OutRURIHostport - Skipped")
+				fmt.Printf("Bad OutRuriHostport: %s - Skipped\n", r.RD.OutRuriHostport)
 				continue
 			}
 			r.RD.RemoteUDP = uaddr
@@ -92,7 +94,7 @@ func (re *RoutingEngine) ReadConfig(data []byte) {
 	fmt.Printf("Routing DB loaded: Total: %d, Valid: %d\n", total, len(re.routings))
 }
 
-func (re *RoutingEngine) Get(userpart string) (*RoutingData, string) {
+func (re *RoutingEngine) Get(userpart string) (*RoutingRecord, string) {
 	re.mu.RLock()
 	defer re.mu.RUnlock()
 
@@ -103,4 +105,11 @@ func (re *RoutingEngine) Get(userpart string) (*RoutingData, string) {
 	}
 
 	return nil, ""
+}
+
+func (re *RoutingEngine) MarshalJSON() ([]byte, error) {
+	re.mu.RLock()
+	defer re.mu.RUnlock()
+
+	return json.Marshal(re.routings)
 }

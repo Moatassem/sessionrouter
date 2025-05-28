@@ -22,7 +22,8 @@ func StartWS(ip net.IP) {
 	r.HandleFunc("GET /api/v1/session", serveSession)
 	r.HandleFunc("GET /api/v1/phone", servePhone)
 	r.HandleFunc("GET /api/v1/stats", serveStats)
-	r.HandleFunc("PATCH /api/v1/config", serveConfig)
+	r.HandleFunc("GET /api/v1/config", serveConfig)
+	r.HandleFunc("PATCH /api/v1/config", refreshConfig)
 
 	r.Handle("GET /metrics", Prometrics.Handler())
 	r.HandleFunc("GET /", serveHome)
@@ -101,6 +102,19 @@ func servePhone(w http.ResponseWriter, _ *http.Request) {
 }
 
 func serveConfig(w http.ResponseWriter, _ *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+
+	data, err := sip.RoutingEngineDB.MarshalJSON()
+	if err != nil {
+		LogError(LTWebserver, err.Error())
+		http.Error(w, "Failed to marshal routing data", http.StatusInternalServerError)
+		return
+	}
+
+	_, _ = w.Write(data)
+}
+
+func refreshConfig(w http.ResponseWriter, _ *http.Request) {
 	sip.RoutingEngineDB.ReloadConfig()
 	_, _ = w.Write(fmt.Appendf(nil, "<h1>%s API Webserver - Config reloaded successfully</h1>\n", B2BUAName))
 }

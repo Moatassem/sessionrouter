@@ -1,7 +1,7 @@
 [
     {
         "userpartPattern": "^777(8157\\d+)",
-        "routingData": {
+        "routingRecord": {
             "noAnswerTimeout": -1,
             "no18xTimeout": 7,
             "maxCallDuration": -1,
@@ -12,7 +12,7 @@
     },
     {
         "userpartPattern": "^(12388)$",
-        "routingData": {
+        "routingRecord": {
             "noAnswerTimeout": -1,
             "no18xTimeout": 7,
             "maxCallDuration": -1,
@@ -23,7 +23,7 @@
     },
     {
         "userpartPattern": "\\d+",
-        "routingData": {
+        "routingRecord": {
             "noAnswerTimeout": 60,
             "no18xTimeout": 5,
             "maxCallDuration": -1,

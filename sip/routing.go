@@ -20,7 +20,7 @@ func (ss1 *SipSession) RouteRequest(trans1 *Transaction, sipmsg1 *SipMessage) {
 	}()
 
 	if ss1.RoutingData == nil { // first invocation
-		ss1.RoutingData = &RoutingData{NoAnswerTimeout: 180, No18xTimeout: 60, MaxCallDuration: 0, OutRuriUserpart: sipmsg1.StartLine.UserPart}
+		ss1.RoutingData = &RoutingRecord{NoAnswerTimeout: 180, No18xTimeout: 60, MaxCallDuration: 0, OutRuriUserpart: sipmsg1.StartLine.UserPart}
 
 		asaddr := ASUserAgent.GetUDPAddr()
 		if AreUAddrsEqual(ss1.RemoteUDP, asaddr) { // incoming from SIP Layer
@@ -101,12 +101,12 @@ func (ss1 *SipSession) RouteRequestInternal(trans1 *Transaction, sipmsg1 *SipMes
 	upart := sipmsg1.StartLine.UserPart
 
 	var (
-		rd     *RoutingData
+		rd     *RoutingRecord
 		upart2 string
 	)
 
 	if phone, ok := phone.Phones.Get(upart); ok {
-		ss1.RoutingData = &RoutingData{NoAnswerTimeout: 60, No18xTimeout: 15, MaxCallDuration: 7200, OutRuriUserpart: upart}
+		ss1.RoutingData = &RoutingRecord{NoAnswerTimeout: 60, No18xTimeout: 15, MaxCallDuration: 7200, OutRuriUserpart: upart}
 		upart2 = upart
 		ua := phone.GetUA()
 		ss1.RoutingData.RemoteUDP = ua.GetUDPAddr()
