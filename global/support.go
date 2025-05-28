@@ -11,6 +11,7 @@ import (
 	"log"
 	"math/rand/v2"
 	"net"
+	"os"
 	"regexp"
 	"runtime"
 	"slices"
@@ -24,6 +25,14 @@ func LogCallStack(r any) {
 	buf := make([]byte, 1024)
 	n := runtime.Stack(buf, false)
 	log.Printf("Stack trace:\n%s\n", buf[:n])
+}
+
+func GetAbsolutePath(relativePath string) (string, error) {
+	wd, err := os.Getwd()
+	if err != nil {
+		return "", err
+	}
+	return wd + string(os.PathSeparator) + relativePath, nil
 }
 
 func GetLocalIPs() ([]net.IP, error) {

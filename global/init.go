@@ -12,7 +12,7 @@ func InitializeEngine() {
 func newSyncPool() *sync.Pool {
 	return &sync.Pool{
 		New: func() any {
-			lst := make([]byte, BufferSize)
+			lst := make([]byte, PduBufferSize)
 			return &lst
 		},
 	}

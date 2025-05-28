@@ -12,7 +12,8 @@ const (
 	EntityName = "OINIS-NSF"
 	B2BUAName  = "SRGo/1.5"
 
-	BufferSize                 = 4096
+	CdrBufferSize              = 512
+	PduBufferSize              = 4096
 	T1Timer                    = 500
 	ReTXCount                  = 5
 	SipPort                    = 5060
@@ -69,6 +70,7 @@ var (
 		JsonDateTimeMS: "2006-01-02T15:04:05.000Z",
 		HTMLDateOnly:   "2006-01-02",
 		SimpleDT:       "2006-01-02 15:04:05",
+		CDRTimestamp:   "20060102_150405",
 	}
 
 	// =================================================================

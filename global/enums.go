@@ -127,6 +127,7 @@ const (
 	JsonDateTimeMS
 	HTMLDateOnly
 	SimpleDT
+	CDRTimestamp
 )
 
 func (tf timeFormat) String() string {

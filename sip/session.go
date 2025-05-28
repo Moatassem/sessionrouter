@@ -816,6 +816,9 @@ func (session *SipSession) DropMe() {
 	session.IsDisposed = true
 	close(session.maxDprobDoneChan)
 	Sessions.Delete(session.CallID)
+
+	// inst := cdr.Instance{}
+	// cdr.AddNew(inst)
 }
 
 func (ss *SipSession) DropMeTimed() {
