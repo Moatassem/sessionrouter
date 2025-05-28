@@ -24,8 +24,8 @@ type (
 		No18xTimeout    int `json:"no18xTimeout"`
 		MaxCallDuration int `json:"maxCallDuration"`
 
-		OutRURIUserpart string `json:"outRURIUserpart"`
-		OutRURIHostport string `json:"outRURIHostport"`
+		OutRuriUserpart string `json:"outRuriUserpart"`
+		OutRuriHostport string `json:"outRuriHostport"`
 
 		OutCallFlow CallFlow `json:"outCallFlow"`
 	}
@@ -77,8 +77,8 @@ func (re *RoutingEngine) ReadConfig(data []byte) {
 			continue
 		}
 		r.RD.InRegex = upRegex
-		if r.RD.OutRURIHostport != "" {
-			uaddr, ok := global.BuildUdpAddr(r.RD.OutRURIHostport, global.SipPort)
+		if r.RD.OutRuriHostport != "" {
+			uaddr, ok := global.BuildUdpAddr(r.RD.OutRuriHostport, global.SipPort)
 			if !ok {
 				fmt.Println("Bad OutRURIHostport - Skipped")
 				continue
@@ -97,7 +97,7 @@ func (re *RoutingEngine) Get(userpart string) (*RoutingData, string) {
 	defer re.mu.RUnlock()
 
 	for _, rd := range re.routings {
-		if up, ok := global.TranslatePattern(userpart, rd.InRegex, rd.OutRURIUserpart); ok {
+		if up, ok := global.TranslatePattern(userpart, rd.InRegex, rd.OutRuriUserpart); ok {
 			return rd, up
 		}
 	}

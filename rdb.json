@@ -5,8 +5,8 @@
             "noAnswerTimeout": -1,
             "no18xTimeout": 7,
             "maxCallDuration": -1,
-            "outRURIUserpart": "+2385801$1",
-            "outRURIHostport": "",
+            "outRuriUserpart": "+2385801$1",
+            "outRuriHostport": "",
             "outCallFlow": "TransformEarlyToFinal"
         }
     },
@@ -16,8 +16,8 @@
             "noAnswerTimeout": -1,
             "no18xTimeout": 7,
             "maxCallDuration": -1,
-            "outRURIUserpart": "$1",
-            "outRURIHostport": "192.168.1.2:5099",
+            "outRuriUserpart": "$1",
+            "outRuriHostport": "192.168.1.2:5099",
             "outCallFlow": "TransformEarlyToFinal"
         }
     },
@@ -27,8 +27,8 @@
             "noAnswerTimeout": 60,
             "no18xTimeout": 5,
             "maxCallDuration": -1,
-            "outRURIUserpart": "12388",
-            "outRURIHostport": "192.168.1.2:5099",
+            "outRuriUserpart": "12388",
+            "outRuriHostport": "192.168.1.2:5099",
             "outCallFlow": "Transparent"
         }
     }
