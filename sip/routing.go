@@ -13,11 +13,7 @@ import (
 )
 
 func (ss1 *SipSession) RouteRequest(trans1 *Transaction, sipmsg1 *SipMessage) {
-	defer func() {
-		if r := recover(); r != nil {
-			LogCallStack(r)
-		}
-	}()
+	defer LogCallStack()
 
 	if ss1.RoutingData == nil { // first invocation
 		ss1.RoutingData = &RoutingRecord{NoAnswerTimeout: 180, No18xTimeout: 60, MaxCallDuration: 0, OutRuriUserpart: sipmsg1.StartLine.UserPart}
@@ -92,11 +88,7 @@ func (ss1 *SipSession) RouteRequest(trans1 *Transaction, sipmsg1 *SipMessage) {
 
 //nolint:cyclop
 func (ss1 *SipSession) RouteRequestInternal(trans1 *Transaction, sipmsg1 *SipMessage) {
-	defer func() {
-		if r := recover(); r != nil {
-			LogCallStack(r)
-		}
-	}()
+	defer LogCallStack()
 
 	upart := sipmsg1.StartLine.UserPart
 
@@ -188,11 +180,8 @@ routeCall:
 }
 
 func (ss1 *SipSession) RerouteRequest(rspnspk ResponsePack) {
-	defer func() {
-		if r := recover(); r != nil {
-			LogCallStack(r)
-		}
-	}()
+	defer LogCallStack()
+
 	if ss1 == nil {
 		return
 	}

@@ -152,14 +152,8 @@ func startWorkers(conn *net.UDPConn) {
 
 func udpLoopWorkers(conn *net.UDPConn) {
 	WtGrp.Add(1)
-	defer func() {
-		WtGrp.Done()
-		if r := recover(); r != nil {
-			LogCallStack(r)
-			udpLoopWorkers(conn)
-		}
-	}()
 	go func() {
+		defer WtGrp.Done()
 		for {
 			buf, _ := BufferPool.Get().(*[]byte)
 			n, addr, err := conn.ReadFromUDP(*buf)

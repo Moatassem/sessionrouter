@@ -20,7 +20,11 @@ import (
 )
 
 // ============================================================
-func LogCallStack(r any) {
+func LogCallStack() {
+	r := recover()
+	if r == nil {
+		return
+	}
 	log.Printf("Panic Recovered! Error:\n%v", r)
 	buf := make([]byte, 1024)
 	n := runtime.Stack(buf, false)

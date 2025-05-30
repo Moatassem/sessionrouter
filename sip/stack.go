@@ -15,13 +15,11 @@ import (
 
 func processPDU(payload []byte) (*SipMessage, []byte, error) {
 	defer func() {
-		if r := recover(); r != nil {
-			// check if pdu is rqst >> send 400 with Warning header indicating what was wrong or unable to parse
-			// or discard rqst if totally wrong
-			// if pdu is rsps >> discard
-			// in any case, log this pdu by saving its hex stream and why it was wrong
-			LogCallStack(r)
-		}
+		// check if pdu is rqst >> send 400 with Warning header indicating what was wrong or unable to parse
+		// or discard rqst if totally wrong
+		// if pdu is rsps >> discard
+		// in any case, log this pdu by saving its hex stream and why it was wrong
+		LogCallStack()
 	}()
 
 	var msgType MessageType
@@ -293,11 +291,7 @@ func processPDU(payload []byte) (*SipMessage, []byte, error) {
 
 //nolint:cyclop
 func sessionGetter(sipmsg *SipMessage) (*SipSession, NewSessionType) {
-	defer func() {
-		if r := recover(); r != nil {
-			LogCallStack(r)
-		}
-	}()
+	defer LogCallStack()
 
 	callID := sipmsg.CallID
 	ss, ok := Sessions.Load(callID)
@@ -361,11 +355,7 @@ func sessionGetter(sipmsg *SipMessage) (*SipSession, NewSessionType) {
 }
 
 func sipStack(sipmsg *SipMessage, ss *SipSession, newSesType NewSessionType) {
-	defer func() {
-		if r := recover(); r != nil {
-			LogCallStack(r)
-		}
-	}()
+	defer LogCallStack()
 
 	if ss == nil || newSesType == DuplicateMessage {
 		return
