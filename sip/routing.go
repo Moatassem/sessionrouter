@@ -98,7 +98,7 @@ func (ss1 *SipSession) RouteRequestInternal(trans1 *Transaction, sipmsg1 *SipMes
 	)
 
 	if phone, ok := phone.Phones.Get(upart); ok {
-		ss1.RoutingData = &RoutingRecord{NoAnswerTimeout: 60, No18xTimeout: 15, MaxCallDuration: 7200, OutRuriUserpart: upart}
+		ss1.RoutingData = &RoutingRecord{NoAnswerTimeout: 10, No18xTimeout: 5, MaxCallDuration: 7200, OutRuriUserpart: upart}
 		upart2 = upart
 		ua := phone.GetUA()
 		ss1.RoutingData.RemoteUDP = ua.GetUDPAddr()

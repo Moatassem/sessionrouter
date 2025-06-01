@@ -46,7 +46,7 @@ type Transaction struct {
 
 	TransTime      time.Time
 	Timer          *SipTimer
-	CANCELAuxTimer *SipTimer
+	CANCELAuxTimer *time.Timer
 
 	// retransmission
 	ReTXCount    int
@@ -142,7 +142,7 @@ func (transaction *Transaction) CreateCANCELST() *Transaction {
 		Direction:         OUTBOUND,
 		Method:            CANCEL,
 		CSeq:              transaction.CSeq,
-		LinkedTransaction: transaction,
+		LinkedTransaction: transaction, // Link this CANCEL transaction to the INVITE transaction
 		To:                transaction.To,
 		From:              transaction.From,
 		ViaBranch:         transaction.ViaBranch,
@@ -229,39 +229,24 @@ func (transaction *Transaction) TransTimerHandler(sipSes *SipSession) {
 
 // ==============================================================================
 func (transaction *Transaction) StartCancelTimer(sipSes *SipSession) {
+	transaction.Lock.Lock()
+	defer transaction.Lock.Unlock()
+
 	if transaction.CANCELAuxTimer != nil {
 		return
 	}
 
-	transaction.CANCELAuxTimer = &SipTimer{
-		DoneCh: make(chan any),
-		Tmr:    time.NewTimer(20 * time.Duration(T1Timer) * time.Millisecond),
-	}
-	go transaction.cancelTimerHandler(sipSes)
+	transaction.CANCELAuxTimer = time.AfterFunc(CancelTimeOut*time.Second, func() { transaction.cancelTimerHandler(sipSes) })
 }
 
-func (transaction *Transaction) StopCancelTimer() {
-	if transaction.CANCELAuxTimer != nil && transaction.CANCELAuxTimer.Tmr.Stop() {
-		close(transaction.CANCELAuxTimer.DoneCh)
-	}
-}
-
-func (transaction *Transaction) cancelTimerHandler(sipSes *SipSession) {
-	select {
-	case <-transaction.CANCELAuxTimer.DoneCh:
-		transaction.Lock.Lock()
-		transaction.CANCELAuxTimer = nil
-		transaction.Lock.Unlock()
-		return
-	case <-transaction.CANCELAuxTimer.Tmr.C:
-	}
-	transaction.Lock.Lock()
-	defer transaction.Lock.Unlock()
+func (transaction *Transaction) StopCancelTimerSYNC() {
 	if transaction.CANCELAuxTimer == nil {
 		return
 	}
-	close(transaction.CANCELAuxTimer.DoneCh)
-	transaction.CANCELAuxTimer = nil
+	transaction.CANCELAuxTimer.Stop()
+}
+
+func (transaction *Transaction) cancelTimerHandler(sipSes *SipSession) {
 	if sipSes.IsFinalized() {
 		return
 	}

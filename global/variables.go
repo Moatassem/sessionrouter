@@ -15,6 +15,7 @@ const (
 	CdrBufferSize              = 512
 	PduBufferSize              = 4096
 	T1Timer                    = 500
+	CancelTimeOut              = 10 // seconds
 	ReTXCount                  = 5
 	SipPort                    = 5060
 	MaxPort                    = 65535

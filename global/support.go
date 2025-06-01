@@ -877,7 +877,7 @@ func Stringlen(s string) int {
 //nolint:exhaustive
 func (m Method) IsDialogueCreating() bool {
 	switch m {
-	case OPTIONS, INVITE: // MESSAGE, NEGOTIATE
+	case OPTIONS, REGISTER, SUBSCRIBE, MESSAGE, INVITE: // NEGOTIATE
 		return true
 	}
 	return false
