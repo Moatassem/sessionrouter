@@ -41,7 +41,7 @@ type Transaction struct {
 
 	CallID      string
 	Responses   []int
-	Lock        sync.RWMutex
+	Lock        sync.Mutex
 	SentMessage *SipMessage
 
 	TransTime      time.Time
@@ -112,8 +112,8 @@ func NewSIPTransaction_CRL(cq uint32, method Method, LT *Transaction) *Transacti
 // Transaction response methods
 
 func (transaction *Transaction) AnyResponseSYNC(fltr func(sc int) bool) bool {
-	transaction.Lock.RLock()
-	defer transaction.Lock.RUnlock()
+	transaction.Lock.Lock()
+	defer transaction.Lock.Unlock()
 	return slices.ContainsFunc(transaction.Responses, fltr)
 }
 
