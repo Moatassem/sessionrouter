@@ -29,7 +29,7 @@ func NewSHsPointer(setDefaults bool) *SipHeaders {
 	if setDefaults {
 		headers.AddHeader(User_Agent, B2BUAName)
 		headers.AddHeader(Server, B2BUAName)
-		headers.AddHeader(Allow, AllowedMethods)
+		// headers.AddHeader(Allow, AllowedMethods)
 	}
 	return &headers
 }

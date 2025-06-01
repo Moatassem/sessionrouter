@@ -26,9 +26,11 @@ type SipSession struct {
 	FromTag    string
 	ToTag      string
 
+	rmtmutex sync.RWMutex // used to synchronize remote addresses and local connection
+
 	RemoteURI        string
 	RemoteContactURI string
-	RemoteUDP        *net.UDPAddr
+	remoteUDP        *net.UDPAddr
 	RemoteContactUDP *net.UDPAddr
 
 	RecordRoutes []string
@@ -51,7 +53,7 @@ type SipSession struct {
 
 	EgressProxy *net.UDPAddr
 
-	UDPListenser    *net.UDPConn
+	udpListenser    *net.UDPConn
 	RemoteUserAgent *SipUdpUserAgent
 
 	FwdCSeq uint32
@@ -103,6 +105,42 @@ func (session *SipSession) ExceedCondition() bool {
 }
 
 //============================================================
+
+func (session *SipSession) SetRemoteUDPnListenser(rmt *net.UDPAddr, cn *net.UDPConn) {
+	session.rmtmutex.Lock()
+	defer session.rmtmutex.Unlock()
+
+	session.remoteUDP = rmt
+	session.udpListenser = cn
+}
+
+func (session *SipSession) SetRemoteUDP(rmt *net.UDPAddr) {
+	session.rmtmutex.Lock()
+	defer session.rmtmutex.Unlock()
+
+	session.remoteUDP = rmt
+}
+
+func (session *SipSession) RemoteUDP() *net.UDPAddr {
+	session.rmtmutex.RLock()
+	defer session.rmtmutex.RUnlock()
+
+	return session.remoteUDP
+}
+
+func (session *SipSession) SetUDPListenser(cn *net.UDPConn) {
+	session.rmtmutex.Lock()
+	defer session.rmtmutex.Unlock()
+
+	session.udpListenser = cn
+}
+
+func (session *SipSession) UDPListenser() *net.UDPConn {
+	session.rmtmutex.RLock()
+	defer session.rmtmutex.RUnlock()
+
+	return session.udpListenser
+}
 
 //nolint:cyclop
 func (session *SipSession) GetTransactionSYNC(sipmsg *SipMessage) *Transaction {
@@ -410,7 +448,7 @@ func (session *SipSession) Send(tx *Transaction) {
 		if tx.ViaUdpAddr != nil {
 			session.sendmessage(tx.SentMessage, tx.ViaUdpAddr)
 		} else {
-			session.sendmessage(tx.SentMessage, session.RemoteUDP)
+			session.sendmessage(tx.SentMessage, session.RemoteUDP())
 		}
 		return
 	}
@@ -424,11 +462,11 @@ func (session *SipSession) Send(tx *Transaction) {
 		session.sendmessage(tx.SentMessage, session.EgressProxy)
 		return
 	}
-	session.sendmessage(tx.SentMessage, session.RemoteUDP)
+	session.sendmessage(tx.SentMessage, session.RemoteUDP())
 }
 
 func (session *SipSession) sendmessage(msg *SipMessage, rmt *net.UDPAddr) {
-	_, err := session.UDPListenser.WriteToUDP(msg.Body.MessageBytes, rmt)
+	_, err := session.UDPListenser().WriteToUDP(msg.Body.MessageBytes, rmt)
 	if err != nil {
 		LogError(LTSystem, "Failed to send message: "+err.Error())
 	}

@@ -229,13 +229,15 @@ func (transaction *Transaction) TransTimerHandler(sipSes *SipSession) {
 
 // ==============================================================================
 func (transaction *Transaction) StartCancelTimer(sipSes *SipSession) {
-	if transaction.CANCELAuxTimer == nil {
-		transaction.CANCELAuxTimer = &SipTimer{
-			DoneCh: make(chan any),
-			Tmr:    time.NewTimer(20 * time.Duration(T1Timer) * time.Millisecond),
-		}
-		go transaction.CancelTimerHandler(sipSes)
+	if transaction.CANCELAuxTimer != nil {
+		return
 	}
+
+	transaction.CANCELAuxTimer = &SipTimer{
+		DoneCh: make(chan any),
+		Tmr:    time.NewTimer(20 * time.Duration(T1Timer) * time.Millisecond),
+	}
+	go transaction.cancelTimerHandler(sipSes)
 }
 
 func (transaction *Transaction) StopCancelTimer() {
@@ -244,7 +246,7 @@ func (transaction *Transaction) StopCancelTimer() {
 	}
 }
 
-func (transaction *Transaction) CancelTimerHandler(sipSes *SipSession) {
+func (transaction *Transaction) cancelTimerHandler(sipSes *SipSession) {
 	select {
 	case <-transaction.CANCELAuxTimer.DoneCh:
 		transaction.Lock.Lock()

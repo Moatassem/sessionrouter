@@ -19,7 +19,7 @@ func (ss1 *SipSession) RouteRequest(trans1 *Transaction, sipmsg1 *SipMessage) {
 		ss1.RoutingData = &RoutingRecord{NoAnswerTimeout: 180, No18xTimeout: 60, MaxCallDuration: 0, OutRuriUserpart: sipmsg1.StartLine.UserPart}
 
 		asaddr := ASUserAgent.GetUDPAddr()
-		if AreUAddrsEqual(ss1.RemoteUDP, asaddr) { // incoming from SIP Layer
+		if AreUAddrsEqual(ss1.RemoteUDP(), asaddr) { // incoming from SIP Layer
 			if phone, ok := phone.Phones.Get(ss1.RoutingData.OutRuriUserpart); ok {
 				ua := phone.GetUA()
 				ss1.RoutingData.RemoteUDP = ua.GetUDPAddr()
@@ -62,8 +62,8 @@ func (ss1 *SipSession) RouteRequest(trans1 *Transaction, sipmsg1 *SipMessage) {
 
 	ss2 := NewSS(OUTBOUND)
 	// ss2.RemoteUDP = ss1.RemoteUDP
-	ss2.RemoteUDP = rd.RemoteUDP
-	ss2.UDPListenser = ss1.UDPListenser
+	ss2.SetRemoteUDP(rd.RemoteUDP)
+	ss2.SetUDPListenser(ss1.UDPListenser())
 	ss2.RoutingData = rd
 	ss2.IsDelayedOfferCall = ss1.IsDelayedOfferCall
 
@@ -156,9 +156,9 @@ routeCall:
 	ss2 := NewSS(OUTBOUND)
 	ss2.EgressProxy = ProxyUdpServer
 
-	ss2.RemoteUDP = cmp.Or(rd.RemoteUDP, ss1.RemoteUDP)
+	ss2.SetRemoteUDP(cmp.Or(rd.RemoteUDP, ss1.RemoteUDP()))
 
-	ss2.UDPListenser = ss1.UDPListenser
+	ss2.SetUDPListenser(ss1.UDPListenser())
 	ss2.RoutingData = rd
 	ss2.IsDelayedOfferCall = ss1.IsDelayedOfferCall
 	ss2.IsPRACKSupported = rd.OutCallFlow == Transparent && ss1.IsPRACKSupported
@@ -240,8 +240,8 @@ func ProbeUA(conn *net.UDPConn, ua *SipUdpUserAgent) {
 		return
 	}
 	ss := NewSS(OUTBOUND)
-	ss.RemoteUDP = ua.GetUDPAddr()
-	ss.UDPListenser = conn
+	ss.SetRemoteUDP(ua.GetUDPAddr())
+	ss.SetUDPListenser(conn)
 	ss.RemoteUserAgent = ua
 
 	hdrs := NewSipHeaders()

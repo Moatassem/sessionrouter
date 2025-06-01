@@ -16,7 +16,7 @@
         "auto_server_ipv4": "",
         // "server_ipv4": "",
         // "indialogue_interval": "1000",
-        "sip_udp_port": "5070",
+        // "sip_udp_port": "5070",
         "http_port": "8080",
         "ka_interval": "180"
       }

@@ -37,13 +37,13 @@ func (session *SipSession) prepareSARequestHeaders(st *Transaction, rqstpk Reque
 }
 
 func (session *SipSession) buildSARequestHeaders(st *Transaction, rqstpk RequestPack, sipmsg *SipMessage) {
-	localsocket := GetUDPAddrFromConn(session.UDPListenser)
+	localsocket := GetUDPAddrFromConn(session.UDPListenser())
 	localIP := localsocket.IP
-	remoteIP := session.RemoteUDP.IP
+	remoteIP := session.RemoteUDP().IP
 
 	// Set Start line
 	sl := sipmsg.StartLine
-	sl.HostPart = session.RemoteUDP.String()
+	sl.HostPart = session.RemoteUDP().String()
 	switch rqstpk.Method {
 	case INVITE:
 		sl.UriParameters = map[string]string{"user": "phone"}
@@ -61,7 +61,7 @@ func (session *SipSession) buildSARequestHeaders(st *Transaction, rqstpk Request
 	hdrs.AddHeader(Call_ID, session.CallID)
 
 	// Set Via and its branch
-	hdrs.AddHeader(Via, fmt.Sprintf("%s;branch=%s", GenerateViaWithoutBranch(session.UDPListenser), st.ViaBranch))
+	hdrs.AddHeader(Via, fmt.Sprintf("%s;branch=%s", GenerateViaWithoutBranch(session.UDPListenser()), st.ViaBranch))
 
 	// Set From and its tag
 	session.FromTag = guid.NewTag()
@@ -141,14 +141,14 @@ func (session *SipSession) proxifyRequestHeaders(sipmsg *SipMessage, trans *Tran
 	lnkdsipmsg := session.LinkedSession.CurrentRequestMessage()
 	sipHdrs := sipmsg.Headers
 
-	localsocket := GetUDPAddrFromConn(session.UDPListenser)
+	localsocket := GetUDPAddrFromConn(session.UDPListenser())
 	localIP := localsocket.IP
-	remoteIP := session.RemoteUDP.IP
+	remoteIP := session.RemoteUDP().IP
 
 	lnkdsl := lnkdsipmsg.StartLine
 
 	sl := sipmsg.StartLine
-	sl.HostPart = session.RemoteUDP.String()
+	sl.HostPart = session.RemoteUDP().String()
 	sl.OriginalUP = lnkdsl.OriginalUP
 	sl.UserParameters = maps.Clone(lnkdsl.UserParameters)
 	sl.Password = lnkdsl.Password
@@ -201,7 +201,7 @@ func (session *SipSession) proxifyRequestHeaders(sipmsg *SipMessage, trans *Tran
 	}
 
 	// Via Header
-	sipHdrs.AddHeader(Via, fmt.Sprintf("%s;branch=%s", GenerateViaWithoutBranch(session.UDPListenser), trans.ViaBranch))
+	sipHdrs.AddHeader(Via, fmt.Sprintf("%s;branch=%s", GenerateViaWithoutBranch(session.UDPListenser()), trans.ViaBranch))
 
 	// Contact Header
 	sipHdrs.SetHeader(Contact, GenerateContact(localsocket))
@@ -263,7 +263,7 @@ func (session *SipSession) prepareRequestHeaders(trans *Transaction, rqstpk Requ
 	hdrs := NewSHsPointer(true)
 	sipmsg.Headers = hdrs
 
-	localsocket := GetUDPAddrFromConn(session.UDPListenser)
+	localsocket := GetUDPAddrFromConn(session.UDPListenser())
 
 	sl := sipmsg.StartLine
 	if trans.UseRemoteURI {
@@ -316,7 +316,7 @@ func (session *SipSession) prepareRequestHeaders(trans *Transaction, rqstpk Requ
 	// Add Contact, Call-ID, and Via headers
 	hdrs.SetHeader(Contact, GenerateContact(localsocket))
 	hdrs.SetHeader(Call_ID, session.CallID)
-	hdrs.AddHeader(Via, fmt.Sprintf("%s;branch=%s", GenerateViaWithoutBranch(session.UDPListenser), trans.ViaBranch))
+	hdrs.AddHeader(Via, fmt.Sprintf("%s;branch=%s", GenerateViaWithoutBranch(session.UDPListenser()), trans.ViaBranch))
 }
 
 // shared between subsequent requests and linked INVITE

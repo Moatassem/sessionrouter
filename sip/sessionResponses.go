@@ -37,7 +37,7 @@ func (session *SipSession) createHeadersForResponse(trans *Transaction, rspnspk 
 
 	// Add Contact header
 	if rspnspk.ContactHeader == "" {
-		localsocket := GetUDPAddrFromConn(session.UDPListenser)
+		localsocket := GetUDPAddrFromConn(session.UDPListenser())
 		hdrs.AddHeader(Contact, GenerateContact(localsocket))
 	} else {
 		hdrs.AddHeader(Contact, rspnspk.ContactHeader)
@@ -85,8 +85,8 @@ func (session *SipSession) createHeadersForResponse(trans *Transaction, rspnspk 
 				session.ToTag = guid.NewTag()
 				session.ToHeader = fmt.Sprintf("%s;tag=%s", hdrs.ValueHeader(To), session.ToTag)
 				trans.To = session.ToHeader
+				hdrs.SetHeader(To, session.ToHeader)
 			}
-			hdrs.SetHeader(To, session.ToHeader)
 		}
 
 		hdrs.AddHeaderValues(Record_Route, session.RecordRoutes)

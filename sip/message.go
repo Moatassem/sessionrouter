@@ -310,7 +310,7 @@ func (sipmsg *SipMessage) TranslateRM(ss *SipSession, tx *Transaction, nt numtyp
 	if newNumber == "" {
 		return
 	}
-	localsocket := GetUDPAddrFromConn(ss.UDPListenser)
+	localsocket := GetUDPAddrFromConn(ss.UDPListenser())
 	rep := fmt.Sprintf("${1}%s$2", newNumber)
 
 	switch nt {
@@ -383,9 +383,11 @@ func (sipmsg *SipMessage) PrepareMessageBytes(ss *SipSession) {
 	}
 
 	byteschan := make(chan []byte)
+	defer close(byteschan)
 
+	// generate body bytes in a separate goroutine
 	go func(bc chan<- []byte) {
-		var bb2 bytes.Buffer
+		var bbc bytes.Buffer
 		if sipmsg.Body.PartsContents == nil {
 			sipmsg.Headers.SetHeader(Content_Type, "")
 			sipmsg.Headers.SetHeader(MIME_Version, "")
@@ -396,30 +398,32 @@ func (sipmsg *SipMessage) PrepareMessageBytes(ss *SipSession) {
 				k, v := FirstKeyValue(bdyparts)
 				sipmsg.Headers.SetHeader(Content_Type, DicBodyContentType[k])
 				sipmsg.Headers.SetHeader(MIME_Version, "")
-				bb2.Write(v.Bytes)
+				bbc.Write(v.Bytes)
 			} else {
 				sipmsg.Headers.SetHeader(Content_Type, "multipart/mixed;boundary="+MultipartBoundary)
 				sipmsg.Headers.SetHeader(MIME_Version, "1.0")
 				isfirstline := true
 				for _, ct := range bdyparts {
 					if !isfirstline {
-						bb2.WriteString("\r\n")
+						bbc.WriteString("\r\n")
 					}
-					bb2.WriteString(fmt.Sprintf("--%s\r\n", MultipartBoundary))
+					bbc.WriteString(fmt.Sprintf("--%s\r\n", MultipartBoundary))
 					for _, h := range ct.Headers.GetHeaderNames() {
 						_, values := ct.Headers.Values(h)
 						for _, hv := range values {
-							bb2.WriteString(fmt.Sprintf("%s: %s\r\n", HeaderCase(h), hv))
+							bbc.WriteString(fmt.Sprintf("%s: %s\r\n", HeaderCase(h), hv))
 						}
 					}
-					bb2.WriteString("\r\n")
-					bb2.Write(ct.Bytes)
+					bbc.WriteString("\r\n")
+					bbc.Write(ct.Bytes)
 					isfirstline = false
 				}
-				bb2.WriteString(fmt.Sprintf("\r\n--%s--\r\n", MultipartBoundary))
+				bbc.WriteString(fmt.Sprintf("\r\n--%s--\r\n", MultipartBoundary))
 			}
 		}
-		bc <- bb2.Bytes()
+		bodybytes := bbc.Bytes()
+		sipmsg.Headers.SetHeader(Content_Length, Int2Str(len(bodybytes)))
+		bc <- bodybytes
 	}(byteschan)
 
 	// startline
@@ -433,13 +437,8 @@ func (sipmsg *SipMessage) PrepareMessageBytes(ss *SipSession) {
 		headers = DicResponseHeaders[sl.StatusCode]
 	}
 
-	// var bodybytes []byte
-	bodybytes := <-byteschan
-
 	// body - build body type, length, multipart and related headers
-	cntntlen := len(bodybytes)
-
-	sipmsg.Headers.SetHeader(Content_Length, Int2Str(cntntlen))
+	bodybytes := <-byteschan
 
 	// headers - build and write
 	for _, h := range headers {
