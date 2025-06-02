@@ -117,7 +117,7 @@ func (session *SipSession) addIncomingResponse(responseMsg *SipMessage) *Transac
 		st.Lock.Unlock()
 
 		// Handle ToTag assignment if the session direction is outbound
-		if responseMsg.ToTag != "" && session.ToTag == "" && session.Direction == OUTBOUND {
+		if responseMsg.ToTag != "" && session.Direction == OUTBOUND && session.ToTag == "" {
 			session.ToTag = responseMsg.ToTag
 			session.ToHeader = responseMsg.Headers.ValueHeader(To)
 			st.To = session.ToHeader

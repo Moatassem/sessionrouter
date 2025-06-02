@@ -232,7 +232,7 @@ func (transaction *Transaction) StartCancelTimer(sipSes *SipSession) {
 	transaction.Lock.Lock()
 	defer transaction.Lock.Unlock()
 
-	if transaction.CANCELAuxTimer != nil {
+	if transaction.CANCELAuxTimer != nil || transaction.IsFinalized {
 		return
 	}
 

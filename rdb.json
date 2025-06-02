@@ -11,7 +11,7 @@
         }
     },
     {
-        "userpartPattern": "^(12388)$",
+        "userpartPattern": "^(12389)$",
         "routingRecord": {
             "noAnswerTimeout": -1,
             "no18xTimeout": 7,
@@ -28,7 +28,7 @@
             "no18xTimeout": 5,
             "maxCallDuration": -1,
             "outRuriUserpart": "12388",
-            "outRuriHostport": "192.168.1.2:5099",
+            "outRuriHostport": "192.168.1.2:5097",
             "outCallFlow": "Transparent"
         }
     }
