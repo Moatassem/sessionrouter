@@ -421,8 +421,10 @@ func (sipmsg *SipMessage) PrepareMessageBytes(ss *SipSession) {
 				bbc.WriteString(fmt.Sprintf("\r\n--%s--\r\n", MultipartBoundary))
 			}
 		}
+
 		bodybytes := bbc.Bytes()
 		sipmsg.Headers.SetHeader(Content_Length, Int2Str(len(bodybytes)))
+
 		bc <- bodybytes
 	}(byteschan)
 

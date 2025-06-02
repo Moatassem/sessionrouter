@@ -596,8 +596,10 @@ func sipStack(sipmsg *SipMessage, ss *SipSession, newSesType NewSessionType) {
 					lnkdss.SendCreatedResponseDetailed(lnktrans, rspspk, *sipmsg.Body)
 				}
 			case stsCode <= 199:
-				ss.StartTimer(No18x)
-				ss.StartTimer(NoAnswer)
+				if ss.IsBeingEstablished() {
+					ss.StartTimer(No18x)
+					ss.StartTimer(NoAnswer)
+				}
 			case stsCode <= 299:
 				switch trans.Method {
 				case INVITE:

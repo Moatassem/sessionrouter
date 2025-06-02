@@ -45,7 +45,7 @@ type Transaction struct {
 	SentMessage *SipMessage
 
 	TransTime      time.Time
-	Timer          *SipTimer
+	Timer          *time.Timer
 	CANCELAuxTimer *time.Timer
 
 	// retransmission
@@ -181,17 +181,8 @@ func (transaction *Transaction) StartTransTimer(sipSes *SipSession) {
 	if transaction.Timer == nil {
 		transaction.ReTXCount = 0
 		transaction.TransTimeOut = time.Duration(T1Timer) * time.Millisecond
-		transaction.Timer = &SipTimer{
-			DoneCh: make(chan any),
-			Tmr:    time.NewTimer(transaction.TransTimeOut),
-		}
-		go transaction.TransTimerHandler(sipSes)
+		transaction.Timer = time.AfterFunc(transaction.TransTimeOut, func() { transaction.transTimerHandler(sipSes) })
 	}
-}
-
-func (transaction *Transaction) restartTransTimer(sipSes *SipSession) {
-	transaction.Timer.Tmr.Reset(transaction.TransTimeOut)
-	go transaction.TransTimerHandler(sipSes)
 }
 
 func (transaction *Transaction) StopTransTimer(useLock bool) {
@@ -199,35 +190,29 @@ func (transaction *Transaction) StopTransTimer(useLock bool) {
 		transaction.Lock.Lock()
 		defer transaction.Lock.Unlock()
 	}
-	if transaction.Timer != nil && transaction.Timer.Tmr.Stop() {
-		close(transaction.Timer.DoneCh)
+	if transaction.Timer != nil {
+		transaction.Timer.Stop()
 	}
 }
 
-func (transaction *Transaction) TransTimerHandler(sipSes *SipSession) {
-	select {
-	case <-transaction.Timer.DoneCh:
-		transaction.Lock.Lock()
-		defer transaction.Lock.Unlock()
-		transaction.Timer = nil
-		return
-	case <-transaction.Timer.Tmr.C:
-	}
+func (transaction *Transaction) transTimerHandler(sipSes *SipSession) {
 	transaction.Lock.Lock()
 	defer transaction.Lock.Unlock()
+
 	if transaction.ReTXCount >= ReTXCount {
-		close(transaction.Timer.DoneCh)
 		transaction.Timer = nil
 		CheckPendingTransaction(sipSes, transaction)
 		return
 	}
+
 	sipSes.Send(transaction)
 	transaction.ReTXCount++
 	transaction.TransTimeOut *= 2 // doubling retransmission interval
-	transaction.restartTransTimer(sipSes)
+	transaction.Timer.Reset(transaction.TransTimeOut)
 }
 
 // ==============================================================================
+
 func (transaction *Transaction) StartCancelTimer(sipSes *SipSession) {
 	transaction.Lock.Lock()
 	defer transaction.Lock.Unlock()

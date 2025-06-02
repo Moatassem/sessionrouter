@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"net"
 	"sync"
-	"time"
 )
 
 type SystemError struct {
@@ -67,11 +66,4 @@ func (ua *SipUdpUserAgent) GetUDPAddrString() string {
 	ua.mu.RLock()
 	defer ua.mu.RUnlock()
 	return ua.udpAddr.String()
-}
-
-// =================================================================================================
-
-type SipTimer struct {
-	DoneCh chan any
-	Tmr    *time.Timer
 }
