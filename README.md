@@ -1,4 +1,4 @@
-# Session Router v1.5 - written from scratch in Golang
+# Session Router v1.6 - written from scratch in Golang
 
 - Highly optimized, high performance, modular, carrier-grade B2BUA with capacity **exceeding 2500 CAPS** and **1.5 Million concurrent sessions**
 - Full SIP Headers and Body Manipulation with Stateful HMRs

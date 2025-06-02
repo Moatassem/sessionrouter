@@ -9,8 +9,8 @@ import (
 )
 
 const (
-	EntityName = "OINIS-NSF"
-	B2BUAName  = "SRGo/1.5"
+	EntityName = "MT-Tools"
+	B2BUAName  = "SRGo/1.6"
 
 	CdrBufferSize              = 512
 	PduBufferSize              = 4096
