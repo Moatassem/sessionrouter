@@ -570,6 +570,9 @@ func sipStack(sipmsg *SipMessage, ss *SipSession, newSesType NewSessionType) {
 		if lnkdss := ss.LinkedSession; lnkdss != nil {
 			switch {
 			case 180 <= stsCode && stsCode <= 189:
+				if !ss.IsBeingEstablished() {
+					return
+				}
 				ss.StopTimer(No18x)
 				if ss.TransformEarlyToFinal {
 					if sipmsg.Body.ContainsSDP() {

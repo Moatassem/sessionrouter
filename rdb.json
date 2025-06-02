@@ -25,7 +25,7 @@
         "userpartPattern": "\\d+",
         "routingRecord": {
             "noAnswerTimeout": 60,
-            "no18xTimeout": 5,
+            "no18xTimeout": 4,
             "maxCallDuration": -1,
             "outRuriUserpart": "12388",
             "outRuriHostport": "192.168.1.2:5097",
