@@ -69,8 +69,8 @@ type SipSession struct {
 
 	IsDisposed    bool
 	multiUseMutex sync.Mutex // used for synchronizing no18x & noAns timers, probing & max duration, dropping session
-	no18xSTimer   *SipTimer
-	noAnsSTimer   *SipTimer
+	no18xSTimer   *time.Timer
+	noAnsSTimer   *time.Timer
 
 	maxDurationTimer *time.Timer  // used on inbound sessions only
 	probingTicker    *time.Ticker // used on inbound sessions only
@@ -563,7 +563,7 @@ func (ss *SipSession) IsReceived18xSDP() bool {
 // ==================================================================
 
 // Unsafe
-func (ss *SipSession) setTimerPointer(tt TimerType, tmr *SipTimer) {
+func (ss *SipSession) setTimerPointer(tt TimerType, tmr *time.Timer) {
 	if tt == NoAnswer {
 		ss.noAnsSTimer = tmr
 	} else {
@@ -572,7 +572,7 @@ func (ss *SipSession) setTimerPointer(tt TimerType, tmr *SipTimer) {
 }
 
 // Unsafe
-func (ss *SipSession) getTimerPointer(tt TimerType) *SipTimer {
+func (ss *SipSession) getTimerPointer(tt TimerType) *time.Timer {
 	if tt == NoAnswer {
 		return ss.noAnsSTimer
 	}
@@ -594,12 +594,8 @@ func (ss *SipSession) StartTimer(tt TimerType) {
 	if delay <= 0 {
 		return
 	}
-	tmr := &SipTimer{
-		DoneCh: make(chan any),
-		Tmr:    time.NewTimer(time.Duration(delay) * time.Second),
-	}
+	tmr := time.AfterFunc(time.Duration(delay)*time.Second, func() { ss.timerHandler(tt) })
 	ss.setTimerPointer(tt, tmr)
-	go ss.timerHandler(tt)
 }
 
 func (ss *SipSession) StopTimer(tt TimerType) {
@@ -609,9 +605,7 @@ func (ss *SipSession) StopTimer(tt TimerType) {
 	if siptmr == nil {
 		return
 	}
-	if siptmr.Tmr.Stop() {
-		close(siptmr.DoneCh)
-	}
+	siptmr.Stop()
 }
 
 func (ss *SipSession) StopNoTimers() {
@@ -620,19 +614,10 @@ func (ss *SipSession) StopNoTimers() {
 }
 
 func (ss *SipSession) timerHandler(tt TimerType) {
-	tmr := ss.getTimerPointer(tt)
-	select {
-	case <-tmr.DoneCh:
-		ss.multiUseMutex.Lock()
-		defer ss.multiUseMutex.Unlock()
-		ss.setTimerPointer(tt, nil)
-		return
-	case <-tmr.Tmr.C:
-	}
 	ss.multiUseMutex.Lock()
-	close(tmr.DoneCh)
 	ss.setTimerPointer(tt, nil)
 	ss.multiUseMutex.Unlock()
+
 	lnkdss := ss.LinkedSession
 	ss.CancelMe(q850.NoAnswerFromUser, tt.Details())
 	lnkdss.RerouteRequest(NewResponsePackSRW(487, tt.Details(), ""))
