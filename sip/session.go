@@ -74,7 +74,7 @@ type SipSession struct {
 
 	maxDurationTimer *time.Timer  // used on inbound sessions only
 	probingTicker    *time.Ticker // used on inbound sessions only
-	maxDprobDoneChan chan any     // to send kill signal to both maxDurationTimer & probingTicker
+	probDoneChan     chan any     // used to send kill signal to probingTicker handler
 
 	Transactions []*Transaction
 	TransLock    sync.RWMutex
@@ -82,8 +82,8 @@ type SipSession struct {
 
 func NewSS(dir Direction) *SipSession {
 	ss := &SipSession{
-		Direction:        dir,
-		maxDprobDoneChan: make(chan any),
+		Direction:    dir,
+		probDoneChan: make(chan any),
 	}
 	return ss
 }
@@ -620,7 +620,7 @@ func (ss *SipSession) timerHandler(tt TimerType) {
 
 	lnkdss := ss.LinkedSession
 	ss.CancelMe(q850.NoAnswerFromUser, tt.Details())
-	lnkdss.RerouteRequest(NewResponsePackSRW(487, tt.Details(), ""))
+	lnkdss.RerouteRequest(NewResponsePackSRW(487, "No response from far end", ""))
 }
 
 // ------------------------------------------------------------------------------
@@ -633,7 +633,7 @@ func (ss *SipSession) StartInDialogueProbing() {
 	ss.multiUseMutex.Lock()
 	defer ss.multiUseMutex.Unlock()
 	ss.probingTicker = time.NewTicker(time.Duration(IndialogueProbingInterval) * time.Second)
-	go ss.probingTickerHandler(ss.maxDprobDoneChan, ss.probingTicker.C)
+	go ss.probingTickerHandler(ss.probDoneChan, ss.probingTicker.C)
 }
 
 func (ss *SipSession) StartMaxCallDuration() {
@@ -652,8 +652,7 @@ func (ss *SipSession) StartMaxCallDuration() {
 	}
 	ss.multiUseMutex.Lock()
 	defer ss.multiUseMutex.Unlock()
-	ss.maxDurationTimer = time.NewTimer(time.Duration(mxD) * time.Second)
-	go ss.maxDurationTimerHandler(ss.maxDprobDoneChan, ss.maxDurationTimer.C)
+	ss.maxDurationTimer = time.AfterFunc(time.Duration(mxD)*time.Second, func() { ss.ReleaseCall("Max call duration reached") })
 }
 
 func (ss *SipSession) probingTickerHandler(doneChan chan any, tkChan <-chan time.Time) {
@@ -666,14 +665,6 @@ func (ss *SipSession) probingTickerHandler(doneChan chan any, tkChan <-chan time
 				ss.SendCreatedRequestDetailed(RequestPack{Method: OPTIONS, Max70: true, IsProbing: true}, nil, EmptyBody())
 			}
 		}
-	}
-}
-
-func (ss *SipSession) maxDurationTimerHandler(doneChan chan any, tmrChan <-chan time.Time) {
-	select {
-	case <-doneChan:
-	case <-tmrChan:
-		ss.ReleaseCall("Max call duration reached")
 	}
 }
 
@@ -837,7 +828,13 @@ func (session *SipSession) DropMe() {
 	}
 	// fmt.Println("Session:", session.CallID, "State:", session.state.String())
 	session.IsDisposed = true
-	close(session.maxDprobDoneChan)
+	close(session.probDoneChan)
+	if session.maxDurationTimer != nil {
+		session.maxDurationTimer.Stop()
+	}
+	if session.probingTicker != nil {
+		session.probingTicker.Stop()
+	}
 	Sessions.Delete(session.CallID)
 
 	// inst := cdr.Instance{}
