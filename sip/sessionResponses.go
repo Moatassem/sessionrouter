@@ -24,7 +24,7 @@ func (session *SipSession) SendCreatedResponseDetailed(trans *Transaction, rspsp
 
 	stc := rspspk.StatusCode
 	trans.Lock.Lock()
-	if IsProvisional18x(stc) {
+	if IsProvisional18x(stc) && rspspk.LinkedPRACKST == nil {
 		if (slices.Contains(trans.Responses, stc) && !rspspk.AllowSimilar18x) || (slices.ContainsFunc(trans.Responses, func(x int) bool { return IsProvisional18x(x) }) && !rspspk.AllowDifferent18x) {
 			trans.Lock.Unlock()
 			return
