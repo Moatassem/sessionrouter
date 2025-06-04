@@ -344,7 +344,7 @@ func (session *SipSession) GetLastUnACKedINV(dir Direction) *Transaction {
 	return nil
 }
 
-func (session *SipSession) GetLastUnACKedINVSYNC(dir Direction) *Transaction {
+func (session *SipSession) GetLastUnACKedInvSYNC(dir Direction) *Transaction {
 	session.TransLock.Lock()
 	defer session.TransLock.Unlock()
 	return session.GetLastUnACKedINV(dir)
@@ -827,7 +827,6 @@ func (session *SipSession) DropMe() {
 		return
 	}
 	// fmt.Println("Session:", session.CallID, "State:", session.state.String())
-	session.IsDisposed = true
 	close(session.probDoneChan)
 	if session.maxDurationTimer != nil {
 		session.maxDurationTimer.Stop()
@@ -835,10 +834,11 @@ func (session *SipSession) DropMe() {
 	if session.probingTicker != nil {
 		session.probingTicker.Stop()
 	}
-	Sessions.Delete(session.CallID)
 
 	// inst := cdr.Instance{}
 	// cdr.AddNew(inst)
+	session.IsDisposed = true
+	Sessions.Delete(session.CallID)
 }
 
 func (ss *SipSession) DropMeTimed() {

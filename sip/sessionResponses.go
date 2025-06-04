@@ -5,6 +5,7 @@ import (
 	"SRGo/guid"
 	"cmp"
 	"fmt"
+	"slices"
 	"time"
 )
 
@@ -14,10 +15,21 @@ func (session *SipSession) SendCreatedResponse(trans *Transaction, sc int, msgbo
 
 func (session *SipSession) SendCreatedResponseDetailed(trans *Transaction, rspspk ResponsePack, msgbody MessageBody) {
 	if trans == nil {
-		trans = session.GetLastUnACKedINVSYNC(INBOUND)
+		trans = session.GetLastUnACKedInvSYNC(INBOUND)
+		if trans == nil {
+			LogError(LTSIPStack, fmt.Sprintf("SendCreatedResponseDetailed: No UnACKed INVITE transaction found to send response (%d) on Call-ID (%s)", rspspk.StatusCode, session.CallID))
+			return
+		}
 	}
+
 	stc := rspspk.StatusCode
 	trans.Lock.Lock()
+	if IsProvisional18x(stc) {
+		if (slices.Contains(trans.Responses, stc) && !rspspk.AllowSimilar18x) || (slices.ContainsFunc(trans.Responses, func(x int) bool { return IsProvisional18x(x) }) && !rspspk.AllowDifferent18x) {
+			trans.Lock.Unlock()
+			return
+		}
+	}
 	trans.Responses = append(trans.Responses, stc)
 	trans.IsFinalized = cmp.Or(trans.IsFinalized, stc >= 200)
 	trans.Lock.Unlock()

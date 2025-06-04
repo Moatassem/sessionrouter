@@ -194,7 +194,7 @@ func (ss1 *SipSession) RerouteRequest(rspnspk ResponsePack) {
 	default:
 		reason = "REJECTED"
 	}
-	trans1 := ss1.GetLastUnACKedINVSYNC(INBOUND)
+	trans1 := ss1.GetLastUnACKedInvSYNC(INBOUND)
 	if trans1 == nil {
 		return
 	}

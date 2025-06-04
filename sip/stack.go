@@ -587,13 +587,12 @@ func sipStack(sipmsg *SipMessage, ss *SipSession, newSesType NewSessionType) {
 					}
 					return
 				}
-				rspspk := ResponsePack{StatusCode: stsCode}
+				rspspk := ResponsePack{StatusCode: stsCode, AllowDifferent18x: true, AllowSimilar18x: false}
 				if sipmsg.IsOptionRequired("100rel") {
 					rspspk.LinkedPRACKST = ss.GenerateOutgoingPRACKST(sipmsg)
 				}
-				lnktrans := lnkdss.GetLastUnACKedINVSYNC(INBOUND)
-				if !lnktrans.StatusCodeExistsSYNC(stsCode) {
-					lnkdss.SendCreatedResponseDetailed(lnktrans, rspspk, *sipmsg.Body)
+				if lnkdss.IsBeingEstablished() {
+					lnkdss.SendCreatedResponseDetailed(nil, rspspk, *sipmsg.Body)
 				}
 			case stsCode <= 199:
 				if ss.IsBeingEstablished() {
