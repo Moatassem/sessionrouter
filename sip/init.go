@@ -184,12 +184,12 @@ func processPacket(packet Packet, conn *net.UDPConn) {
 		} else if msg == nil {
 			break
 		}
+		pdu = pdutmp
 		ss, newSesType := sessionGetter(msg)
 		if ss != nil {
 			ss.SetRemoteUDPnListenser(packet.sourceAddr, conn)
 		}
 		sipStack(msg, ss, newSesType)
-		pdu = pdutmp
 	}
 	BufferPool.Put(packet.buffer)
 }
