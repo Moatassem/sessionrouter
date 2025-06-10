@@ -82,3 +82,54 @@ func TestCleanAndSplitHeader(t *testing.T) {
 		}
 	}
 }
+
+func TestBuildUdpAddr2(t *testing.T) {
+	t.Parallel()
+
+	tests := []struct {
+		input    string
+		valid    bool
+		expected string
+	}{
+		{
+			input:    "somewhere:5070",
+			valid:    true,
+			expected: "somewhere:5070",
+		},
+		{
+			input:    "somewhere:0",
+			valid:    false,
+			expected: "",
+		},
+		{
+			input:    "somewhere",
+			valid:    true,
+			expected: "somewhere:5060",
+		},
+		{
+			input:    "192.168.1.2:5070",
+			valid:    false,
+			expected: "192.168.1.2:5070",
+		},
+		{
+			input:    "192.168.1.2:0",
+			valid:    false,
+			expected: "",
+		},
+		{
+			input:    "192.168.1.2",
+			valid:    false,
+			expected: "192.168.1.2:5060",
+		},
+	}
+
+	for _, test := range tests {
+		result, err := global.BuildUdpAddrOrHost(test.input, 5060)
+		if err != nil && test.valid {
+			t.Errorf("BuildUdpAddr2(%q, 5060) returned %v but expected %v", test.input, result, test.expected)
+		}
+		if result != nil && result.String() != test.expected {
+			t.Errorf("BuildUdpAddr2(%q, 5060) = %v; want %v", test.input, result.String(), test.expected)
+		}
+	}
+}

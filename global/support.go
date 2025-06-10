@@ -76,7 +76,19 @@ func GetUDPAddrFromConn(conn *net.UDPConn) *net.UDPAddr {
 	return conn.LocalAddr().(*net.UDPAddr)
 }
 
-func BuildUdpAddr2(ipsocket string) (*net.UDPAddr, error) {
+func BuildUdpAddrOrHost(ipsocket string, defaultport int) (*net.UDPAddr, error) {
+	part1, part2, ok := strings.Cut(ipsocket, ":")
+	var prt int
+	if ok {
+		prt = Str2Int[int](part2)
+		if prt <= 0 || prt > MaxPort {
+			return nil, fmt.Errorf("invalid port number: %d", prt)
+		}
+		prt = cmp.Or(prt, defaultport)
+		ipsocket = fmt.Sprintf("%s:%d", part1, prt)
+	} else {
+		ipsocket = fmt.Sprintf("%s:%d", part1, defaultport)
+	}
 	return net.ResolveUDPAddr("udp", ipsocket)
 }
 

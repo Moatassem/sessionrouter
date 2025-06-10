@@ -6,6 +6,7 @@ import (
 	"SRGo/sip"
 	"SRGo/webserver"
 	"fmt"
+	"log"
 	"net"
 	"os"
 )
@@ -53,8 +54,9 @@ func checkArgs() (*net.UDPAddr, string, int, int, int, int, string) {
 	}
 
 	{
-		var ok bool
-		if udpskt, ok = global.BuildUdpAddr(siplyr, global.SipPort); !ok {
+		var err error
+		if udpskt, err = global.BuildUdpAddrOrHost(siplyr, global.SipPort); err != nil {
+			log.Println("Error resolving AS UDP address:", err)
 			os.Exit(1)
 		}
 		global.LogInfo(global.LTConfiguration, fmt.Sprintf("AS Routing: [%s]", siplyr))
