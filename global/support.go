@@ -86,11 +86,13 @@ func BuildUdpAddr(ipsocket string, defaultport int) (*net.UDPAddr, bool) {
 		}
 	}
 	prt = cmp.Or(prt, defaultport)
-	ip := net.ParseIP(part1)
-	if ip == nil {
+
+	addr, err := net.ResolveUDPAddr("udp", fmt.Sprintf("%s:%d", part1, prt))
+	if err != nil {
 		return nil, false
 	}
-	return &net.UDPAddr{IP: ip, Port: prt}, true
+
+	return addr, true
 }
 
 func AreUAddrsEqual(addr1, addr2 *net.UDPAddr) bool {

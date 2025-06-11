@@ -38,9 +38,8 @@ func BuildUdpSocket(ipsocket string, defaultport int) (*UdpSocket, error) {
 			return nil, fmt.Errorf("invalid port number: %d", prt)
 		}
 		prt = cmp.Or(prt, defaultport)
-	} else {
-		prt = defaultport
 	}
+	prt = cmp.Or(prt, defaultport)
 
 	addr, err := net.ResolveUDPAddr("udp", fmt.Sprintf("%s:%d", part1, prt))
 	if err != nil {
