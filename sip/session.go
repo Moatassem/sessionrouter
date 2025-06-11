@@ -403,7 +403,7 @@ func (session *SipSession) UpdateContactRecordRouteBody(sipmsg *SipMessage) {
 		session.RecordRoutes = rcrdrts
 	}
 
-	parseURI := func(hv string) string {
+	extractHostpart := func(hv string) string {
 		var mtch []string
 		if !RMatch(hv, FQDNPort, &mtch) {
 			return ""
@@ -411,7 +411,7 @@ func (session *SipSession) UpdateContactRecordRouteBody(sipmsg *SipMessage) {
 		return mtch[1]
 	}
 
-	if RCUDP, ok := BuildUdpAddr(parseURI(sipmsg.RCURI), SipPort); ok {
+	if RCUDP, ok := BuildUdpAddr(extractHostpart(sipmsg.RCURI), SipPort); ok {
 		session.RemoteContactURI = sipmsg.RCURI
 		if len(session.RecordRoutes) == 0 {
 			session.RemoteContactUDP = RCUDP

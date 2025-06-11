@@ -89,6 +89,7 @@ func BuildUdpAddr(ipsocket string, defaultport int) (*net.UDPAddr, bool) {
 
 	addr, err := net.ResolveUDPAddr("udp", fmt.Sprintf("%s:%d", part1, prt))
 	if err != nil {
+		log.Printf("Error resolving UDP address [%s]: %v", ipsocket, err)
 		return nil, false
 	}
 
