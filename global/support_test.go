@@ -124,7 +124,7 @@ func TestBuildUdpAddr2(t *testing.T) {
 	}
 
 	for _, test := range tests {
-		result, err := global.BuildUdpAddrOrHost(test.input, 5060)
+		result, err := global.BuildUdpSocket(test.input, 5060)
 		if err != nil && test.valid {
 			t.Errorf("BuildUdpAddr2(%q, 5060) returned %v but expected %v", test.input, result, test.expected)
 		}

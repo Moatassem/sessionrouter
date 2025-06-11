@@ -7,7 +7,6 @@ import (
 	"SRGo/webserver"
 	"fmt"
 	"log"
-	"net"
 	"os"
 )
 
@@ -41,9 +40,9 @@ func greeting() {
 	global.LogInfo(global.LTSystem, fmt.Sprintf("Welcome to %s - Product of %s 2025", global.B2BUAName, global.ASCIIPascal(global.EntityName)))
 }
 
-func checkArgs() (*net.UDPAddr, string, int, int, int, int, string) {
+func checkArgs() (*global.UdpSocket, string, int, int, int, int, string) {
 	var (
-		udpskt                                   *net.UDPAddr
+		udpskt                                   *global.UdpSocket
 		sipuport, kaInter, httpport, indiagInter int
 	)
 
@@ -55,7 +54,7 @@ func checkArgs() (*net.UDPAddr, string, int, int, int, int, string) {
 
 	{
 		var err error
-		if udpskt, err = global.BuildUdpAddrOrHost(siplyr, global.SipPort); err != nil {
+		if udpskt, err = global.BuildUdpSocket(siplyr, global.SipPort); err != nil {
 			log.Println("Error resolving AS UDP address:", err)
 			os.Exit(1)
 		}

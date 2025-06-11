@@ -18,11 +18,11 @@ func (ss1 *SipSession) RouteRequest(trans1 *Transaction, sipmsg1 *SipMessage) {
 	if ss1.RoutingData == nil { // first invocation
 		ss1.RoutingData = &RoutingRecord{NoAnswerTimeout: 180, No18xTimeout: 60, MaxCallDuration: 0, OutRuriUserpart: sipmsg1.StartLine.UserPart}
 
-		asaddr := ASUserAgent.GetUDPAddr()
-		if AreUAddrsEqual(ss1.RemoteUDP(), asaddr) { // incoming from SIP Layer
+		asskt := ASUserAgent.GetUDPAddr()
+		if AreUAddrsEqual(ss1.RemoteUDP(), asskt) { // incoming from SIP Layer
 			if phone, ok := phone.Phones.Get(ss1.RoutingData.OutRuriUserpart); ok {
 				ua := phone.GetUA()
-				ss1.RoutingData.RemoteUDP = ua.GetUDPAddr()
+				ss1.RoutingData.RemoteUDPSocket = ua.GetUDPSocket()
 				if !phone.IsRegistered {
 					ss1.RejectMe(trans1, status.TemporarilyUnavailable, q850.NoAnswerFromUser, "target not registered")
 					return
@@ -44,7 +44,7 @@ func (ss1 *SipSession) RouteRequest(trans1 *Transaction, sipmsg1 *SipMessage) {
 				return
 			}
 		} else {
-			ss1.RoutingData.RemoteUDP = asaddr
+			ss1.RoutingData.RemoteUDPSocket = ASUserAgent.GetUDPSocket()
 			sipmsg1.AddRequestedBodyParts()
 		}
 		// isCallerPhone := phone.Phones.IsPhoneExt(getURIUsername(sipmsg1.FromHeader))
@@ -62,7 +62,7 @@ func (ss1 *SipSession) RouteRequest(trans1 *Transaction, sipmsg1 *SipMessage) {
 
 	ss2 := NewSS(OUTBOUND)
 	// ss2.RemoteUDP = ss1.RemoteUDP
-	ss2.SetRemoteUDP(rd.RemoteUDP)
+	ss2.SetRemoteUDP(rd.RemoteUDPSocket.UDPAddr())
 	ss2.SetUDPListenser(ss1.UDPListenser())
 	ss2.RoutingData = rd
 	ss2.IsDelayedOfferCall = ss1.IsDelayedOfferCall
@@ -101,7 +101,7 @@ func (ss1 *SipSession) RouteRequestInternal(trans1 *Transaction, sipmsg1 *SipMes
 		ss1.RoutingData = &RoutingRecord{NoAnswerTimeout: 60, No18xTimeout: 30, MaxCallDuration: 7200, OutRuriUserpart: upart}
 		upart2 = upart
 		ua := phone.GetUA()
-		ss1.RoutingData.RemoteUDP = ua.GetUDPAddr()
+		ss1.RoutingData.RemoteUDPSocket = ua.GetUDPSocket()
 		if !phone.IsRegistered {
 			ss1.RejectMe(trans1, status.TemporarilyUnavailable, q850.NoAnswerFromUser, "target not registered")
 			return
@@ -156,7 +156,7 @@ routeCall:
 	ss2 := NewSS(OUTBOUND)
 	ss2.EgressProxy = ProxyUdpServer
 
-	ss2.SetRemoteUDP(cmp.Or(rd.RemoteUDP, ss1.RemoteUDP()))
+	ss2.SetRemoteUDP(cmp.Or(rd.RemoteUDPSocket.UDPAddr(), ss1.RemoteUDP()))
 
 	ss2.SetUDPListenser(ss1.UDPListenser())
 	ss2.RoutingData = rd

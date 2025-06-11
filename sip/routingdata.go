@@ -4,7 +4,6 @@ import (
 	"SRGo/global"
 	"encoding/json"
 	"fmt"
-	"net"
 	"regexp"
 	"sync"
 )
@@ -16,10 +15,10 @@ type (
 	}
 
 	RoutingRecord struct {
-		InRegex         *regexp.Regexp `json:"-"`
-		RemoteUDP       *net.UDPAddr   `json:"-"`
-		IsDB            bool           `json:"-"`
-		UserpartPattern string         `json:"userpartPattern"`
+		InRegex         *regexp.Regexp    `json:"-"`
+		RemoteUDPSocket *global.UdpSocket `json:"-"`
+		IsDB            bool              `json:"-"`
+		UserpartPattern string            `json:"userpartPattern"`
 
 		NoAnswerTimeout int `json:"noAnswerTimeout"`
 		No18xTimeout    int `json:"no18xTimeout"`
@@ -80,12 +79,12 @@ func (re *RoutingEngine) ReadConfig(data []byte) {
 		r.RD.UserpartPattern = upRegex.String()
 		r.RD.InRegex = upRegex
 		if r.RD.OutRuriHostport != "" {
-			uaddr, ok := global.BuildUdpAddr(r.RD.OutRuriHostport, global.SipPort)
-			if !ok {
-				fmt.Printf("Bad OutRuriHostport: %s - Skipped\n", r.RD.OutRuriHostport)
+			uaddr, err := global.BuildUdpSocket(r.RD.OutRuriHostport, global.SipPort)
+			if err != nil {
+				fmt.Printf("Bad OutRuriHostport: %s (%q) - Skipped\n", r.RD.OutRuriHostport, err)
 				continue
 			}
-			r.RD.RemoteUDP = uaddr
+			r.RD.RemoteUDPSocket = uaddr
 		}
 		r.RD.IsDB = true
 		re.routings = append(re.routings, &r.RD)
