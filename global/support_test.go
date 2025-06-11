@@ -104,7 +104,7 @@ func TestBuildUdpAddr2(t *testing.T) {
 		{
 			input:    "somewhere",
 			valid:    true,
-			expected: "somewhere:5060",
+			expected: "somewhere",
 		},
 		{
 			input:    "192.168.1.2:5070",
@@ -119,17 +119,17 @@ func TestBuildUdpAddr2(t *testing.T) {
 		{
 			input:    "192.168.1.2",
 			valid:    false,
-			expected: "192.168.1.2:5060",
+			expected: "192.168.1.2",
 		},
 	}
 
 	for _, test := range tests {
 		result, err := global.BuildUdpSocket(test.input, 5060)
 		if err != nil && test.valid {
-			t.Errorf("BuildUdpAddr2(%q, 5060) returned %v but expected %v", test.input, result, test.expected)
+			t.Errorf("BuildUdpSocket(%q, 5060) returned %v but expected %v", test.input, result, test.expected)
 		}
 		if result != nil && result.String() != test.expected {
-			t.Errorf("BuildUdpAddr2(%q, 5060) = %v; want %v", test.input, result.String(), test.expected)
+			t.Errorf("BuildUdpSocket(%q, 5060) = %v; want %v", test.input, result.String(), test.expected)
 		}
 	}
 }
