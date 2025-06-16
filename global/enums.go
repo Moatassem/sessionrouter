@@ -232,6 +232,7 @@ const (
 	LTLicense
 	LTLogInOut
 	LTMediaCapability
+	LTMediaStack
 	LTNAT
 	LTPESQScore
 	LTResourceLimitation

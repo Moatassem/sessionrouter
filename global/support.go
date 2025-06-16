@@ -76,6 +76,10 @@ func GetUDPAddrFromConn(conn *net.UDPConn) *net.UDPAddr {
 	return conn.LocalAddr().(*net.UDPAddr)
 }
 
+func GetUDPortFromConn(conn *net.UDPConn) int {
+	return conn.LocalAddr().(*net.UDPAddr).Port
+}
+
 func BuildUdpAddr(ipsocket string, defaultport int) (*net.UDPAddr, bool) {
 	part1, part2, ok := strings.Cut(ipsocket, ":")
 	var prt int

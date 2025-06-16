@@ -28,11 +28,11 @@ func main() {
 	greeting()
 
 	global.Prometrics = prometheus.NewMetrics(global.B2BUAName)
-	conn, ip := sip.StartServer(checkArgs())
+	conn := sip.StartServer(checkArgs())
 
 	defer conn.Close() // close SIP server connection
 
-	webserver.StartWS(ip)
+	webserver.StartWS()
 	global.WtGrp.Wait()
 }
 

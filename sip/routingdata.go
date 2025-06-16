@@ -24,6 +24,8 @@ type (
 		No18xTimeout    int `json:"no18xTimeout"`
 		MaxCallDuration int `json:"maxCallDuration"`
 
+		SteerMedia bool `json:"steerMedia"`
+
 		OutRuriUserpart string `json:"outRuriUserpart"`
 		OutRuriHostport string `json:"outRuriHostport"`
 

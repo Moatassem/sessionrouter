@@ -12,6 +12,11 @@ const (
 	EntityName = "MT-Tools"
 	B2BUAName  = "SRGo/1.6"
 
+	RTPHeaderSize  int = 12
+	RTPPayloadSize int = 160
+	MediaStartPort int = 7001
+	MediaEndPort   int = 57000
+
 	CdrBufferSize              = 512
 	PduBufferSize              = 4096
 	T1Timer                    = 500
@@ -51,7 +56,7 @@ var (
 	messageTypes = [...]string{"INVALID", "REQUEST", "RESPONSE"}
 	timeFormats  = [...]string{"Signaling", "Tracing", "version", "DateOnly", "TimeOnly", "DateTimeOnly", "Session", "HTML", "DateTimeLocal", "JsonDateTime", "HTMLDateOnly", "yyyy_MM_dd", "SimpleDT"}
 	csModes      = [...]string{"CallRecording", "CallSummary", "CallTracing"}
-	logtitles    = [...]string{"All", "AnswerMachine", "BadSIPMessage", "ChatMessage", "ConfigFiles", "Configuration", "Connectivity", "ContactCenter", "CustomCommand", "CustomCommandResult", "DTMF", "EmailNotification", "ExternalData", "FileUpload", "Webserver", "IPCollection", "License", "LogInOut", "MediaCapability", "NAT", "PESQScore", "ResourceLimitation", "RTDGrabber", "Security", "SDPStack", "SIPStack", "SNMP", "StirShaken", "StressTester", "System", "TLSStack", "TTS", "UnhandledCritical", "Unspecified", "WebSocketData", "None"}
+	logtitles    = [...]string{"All", "AnswerMachine", "BadSIPMessage", "ChatMessage", "ConfigFiles", "Configuration", "Connectivity", "ContactCenter", "CustomCommand", "CustomCommandResult", "DTMF", "EmailNotification", "ExternalData", "FileUpload", "Webserver", "IPCollection", "License", "LogInOut", "MediaCapability", "MediaStack", "NAT", "PESQScore", "ResourceLimitation", "RTDGrabber", "Security", "SDPStack", "SIPStack", "SNMP", "StirShaken", "StressTester", "System", "TLSStack", "TTS", "UnhandledCritical", "Unspecified", "WebSocketData", "None"}
 	loglevels    = [...]string{"Information", "Warning", "Error"}
 	UriSchemes   = [...]string{"sip", "sips", "tel"}
 	// =================================================================

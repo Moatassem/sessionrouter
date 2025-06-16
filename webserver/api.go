@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"log"
-	"net"
 	"net/http"
 	"runtime"
 	"time"
@@ -14,9 +13,9 @@ import (
 	"SRGo/sip"
 )
 
-func StartWS(ip net.IP) {
+func StartWS() {
 	r := http.NewServeMux()
-	ws := fmt.Sprintf("%s:%d", ip, HttpTcpPort)
+	ws := fmt.Sprintf("%s:%d", sip.ServerIPv4, HttpTcpPort)
 	srv := &http.Server{Addr: ws, Handler: r, ReadTimeout: 5 * time.Second, WriteTimeout: 10 * time.Second, IdleTimeout: 15 * time.Second}
 
 	r.HandleFunc("GET /api/v1/session", serveSession)

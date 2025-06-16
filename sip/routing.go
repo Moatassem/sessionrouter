@@ -136,6 +136,11 @@ func (ss1 *SipSession) RouteRequestInternal(trans1 *Transaction, sipmsg1 *SipMes
 			return
 		}
 
+		// TODO pending
+		if rd.SteerMedia {
+
+		}
+
 		goto routeCall
 	}
 

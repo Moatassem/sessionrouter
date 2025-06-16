@@ -23,6 +23,7 @@ var (
 	sippTesting               bool
 	ProxyUdpServer            *net.UDPAddr
 	RoutingEngineDB           *RoutingEngine
+	ServerIPv4                net.IP
 )
 
 func readJsonFile() []byte {
@@ -44,7 +45,7 @@ func readJsonFile() []byte {
 	return data
 }
 
-func StartServer(asUdpskt *global.UdpSocket, ipv4 string, sup, kai, htp, indint int, uproxy string) (*net.UDPConn, net.IP) {
+func StartServer(asUdpskt *global.UdpSocket, ipv4 string, sup, kai, htp, indint int, uproxy string) *net.UDPConn {
 	fmt.Print("Initializing Global Variables...")
 
 	Sessions = NewConcurrentMapMutex[*SipSession](QueueSize)
@@ -53,6 +54,7 @@ func StartServer(asUdpskt *global.UdpSocket, ipv4 string, sup, kai, htp, indint 
 	ASUserAgent = NewSipUdpUserAgentFromSocket(asUdpskt)
 
 	InitializeEngine()
+	MediaPorts = NewMediaPortPool()
 
 	fmt.Println("Ready!")
 
@@ -82,20 +84,18 @@ func StartServer(asUdpskt *global.UdpSocket, ipv4 string, sup, kai, htp, indint 
 		}
 	}
 
-	var serverIP net.IP
-
 	if ipv4 == "" {
 		serverIPs, err := GetLocalIPs()
 		if err != nil || len(serverIPs) == 0 {
 			LogWarning(LTConfiguration, "No self IPv4 address provided!")
 		}
-		serverIP = serverIPs[0]
+		ServerIPv4 = serverIPs[0]
 	} else {
-		serverIP = net.ParseIP(ipv4)
+		ServerIPv4 = net.ParseIP(ipv4)
 	}
 
 	fmt.Print("Attempting to listen on SIP...")
-	serverUDPListener, err := StartListening(serverIP, SipUdpPort)
+	serverUDPListener, err := StartListening(ServerIPv4, SipUdpPort)
 	if err != nil {
 		fmt.Println(err)
 		os.Exit(2)
@@ -111,7 +111,7 @@ func StartServer(asUdpskt *global.UdpSocket, ipv4 string, sup, kai, htp, indint 
 	CallLimiter = cl.NewCallLimiter(RateLimit, Prometrics, &WtGrp)
 	fmt.Printf("OK (%d)\n", RateLimit)
 
-	return serverUDPListener, serverIP
+	return serverUDPListener
 }
 
 func periodicUAProbing(conn *net.UDPConn) {
