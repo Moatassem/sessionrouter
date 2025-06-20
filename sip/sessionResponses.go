@@ -9,11 +9,11 @@ import (
 	"time"
 )
 
-func (session *SipSession) SendCreatedResponse(trans *Transaction, sc int, msgbody MessageBody) {
+func (session *SipSession) SendCreatedResponse(trans *Transaction, sc int, msgbody *MessageBody) {
 	session.SendCreatedResponseDetailed(trans, ResponsePack{StatusCode: sc}, msgbody)
 }
 
-func (session *SipSession) SendCreatedResponseDetailed(trans *Transaction, rspspk ResponsePack, msgbody MessageBody) {
+func (session *SipSession) SendCreatedResponseDetailed(trans *Transaction, rspspk ResponsePack, msgbody *MessageBody) {
 	if trans == nil {
 		trans = session.GetLastUnACKedInvSYNC(INBOUND)
 		if trans == nil {
@@ -37,7 +37,7 @@ func (session *SipSession) SendCreatedResponseDetailed(trans *Transaction, rspsp
 	sipmsg := NewResponseMessage(stc, rspspk.ReasonPhrase)
 	sipmsg.Headers = session.createHeadersForResponse(trans, rspspk)
 
-	sipmsg.Body = &msgbody
+	sipmsg.Body = msgbody
 	sipmsg.Body.ParseNPrepareSDP(session)
 
 	trans.SentMessage = sipmsg

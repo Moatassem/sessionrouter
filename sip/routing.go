@@ -67,7 +67,7 @@ func (ss1 *SipSession) RouteRequest(trans1 *Transaction, sipmsg1 *SipMessage) {
 	ss2.LinkedSession = ss1
 	ss1.LinkedSession = ss2
 
-	trans2, _ := ss2.CreateLinkedINVITE(rd.OutRuriUserpart, *sipmsg1.Body)
+	trans2, _ := ss2.CreateLinkedINVITE(rd.OutRuriUserpart, sipmsg1.Body)
 
 	ss2.IsPRACKSupported = ss1.IsPRACKSupported
 	// TODO - return target and prefix .. ex. cdpn:+201223309859, prefix: 042544154
@@ -173,7 +173,7 @@ routeCall:
 		}
 	}
 
-	trans2, _ := ss2.CreateLinkedINVITE(upart2, *sipmsg1.Body)
+	trans2, _ := ss2.CreateLinkedINVITE(upart2, sipmsg1.Body)
 
 	ss2.TransformEarlyToFinal = rd.OutCallFlow == TransformEarlyToFinal
 

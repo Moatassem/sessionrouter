@@ -441,13 +441,13 @@ func sipStack(sipmsg *SipMessage, ss *SipSession, newSesType NewSessionType) {
 			if lnkdss != nil {
 				if lnkdss.TransformEarlyToFinal {
 					if sipmsg.Body.ContainsSDP() {
-						lnkdss.SendCreatedRequest(UPDATE, trans, *sipmsg.Body)
+						lnkdss.SendCreatedRequest(UPDATE, trans, sipmsg.Body)
 					} else {
 						ss.SendCreatedResponse(trans, 488, EmptyBody())
 					}
 					return
 				}
-				lnkdss.SendCreatedRequest(ReINVITE, trans, *sipmsg.Body)
+				lnkdss.SendCreatedRequest(ReINVITE, trans, sipmsg.Body)
 			}
 		case ACK:
 			if trans.Method == INVITE {
@@ -460,7 +460,7 @@ func sipStack(sipmsg *SipMessage, ss *SipSession, newSesType NewSessionType) {
 				ss.StartInDialogueProbing()
 				if lnkdss := ss.LinkedSession; lnkdss != nil && !lnkdss.TransformEarlyToFinal { // call answered - need to propagate ACK
 					lnkdss.FinalizeState()
-					lnkdss.SendCreatedRequest(ACK, nil, *sipmsg.Body)
+					lnkdss.SendCreatedRequest(ACK, nil, sipmsg.Body)
 				}
 			} else { // ReINVITE
 				if lnkdss := ss.LinkedSession; lnkdss != nil && trans.LinkedTransaction != nil {
@@ -469,7 +469,7 @@ func sipStack(sipmsg *SipMessage, ss *SipSession, newSesType NewSessionType) {
 						lnkdss.ChecknSetDialogueChanging(false)
 					}
 					if !lnkdss.TransformEarlyToFinal {
-						lnkdss.SendCreatedRequest(ACK, trans.LinkedTransaction, *sipmsg.Body)
+						lnkdss.SendCreatedRequest(ACK, trans.LinkedTransaction, sipmsg.Body)
 					}
 				}
 			}
@@ -523,7 +523,7 @@ func sipStack(sipmsg *SipMessage, ss *SipSession, newSesType NewSessionType) {
 				return
 			}
 			if lnkdss != nil {
-				lnkdss.SendCreatedRequest(UPDATE, trans, *sipmsg.Body)
+				lnkdss.SendCreatedRequest(UPDATE, trans, sipmsg.Body)
 			}
 		case PRACK:
 			if trans.PrackStatus != PRACKExpected {
@@ -532,7 +532,7 @@ func sipStack(sipmsg *SipMessage, ss *SipSession, newSesType NewSessionType) {
 			}
 			ss.SendCreatedResponse(trans, status.OK, EmptyBody())
 			if lnkdss := ss.LinkedSession; lnkdss != nil {
-				lnkdss.SendCreatedRequest(PRACK, trans.LinkedTransaction, *sipmsg.Body)
+				lnkdss.SendCreatedRequest(PRACK, trans.LinkedTransaction, sipmsg.Body)
 			}
 		case REFER:
 			lnkdss := ss.LinkedSession
@@ -545,7 +545,7 @@ func sipStack(sipmsg *SipMessage, ss *SipSession, newSesType NewSessionType) {
 			ss.SendCreatedResponse(trans, status.MethodNotAllowed, EmptyBody())
 		case INFO:
 			if lnkdss := ss.LinkedSession; lnkdss != nil {
-				lnkdss.SendCreatedRequest(INFO, trans, *sipmsg.Body)
+				lnkdss.SendCreatedRequest(INFO, trans, sipmsg.Body)
 			}
 		case REGISTER:
 			contact, ext, ruri, ipport, expires := sipmsg.GetRegistrationData()
@@ -578,7 +578,7 @@ func sipStack(sipmsg *SipMessage, ss *SipSession, newSesType NewSessionType) {
 					if sipmsg.Body.ContainsSDP() {
 						if !ss.IsReceived18xSDP() {
 							ss.SetReceived18xSDP()
-							lnkdss.SendCreatedResponse(nil, 200, *sipmsg.Body)
+							lnkdss.SendCreatedResponse(nil, 200, sipmsg.Body)
 						}
 					} else {
 						if !ss.IsReceived18xSDP() {
@@ -592,7 +592,7 @@ func sipStack(sipmsg *SipMessage, ss *SipSession, newSesType NewSessionType) {
 					rspspk.LinkedPRACKST = ss.GenerateOutgoingPRACKST(sipmsg)
 				}
 				if lnkdss.IsBeingEstablished() {
-					lnkdss.SendCreatedResponseDetailed(nil, rspspk, *sipmsg.Body)
+					lnkdss.SendCreatedResponseDetailed(nil, rspspk, sipmsg.Body)
 				}
 			case stsCode <= 199:
 				if ss.IsBeingEstablished() {
@@ -618,15 +618,15 @@ func sipStack(sipmsg *SipMessage, ss *SipSession, newSesType NewSessionType) {
 							return
 						}
 					}
-					lnkdss.SendCreatedResponse(nil, stsCode, *sipmsg.Body)
+					lnkdss.SendCreatedResponse(nil, stsCode, sipmsg.Body)
 				case CANCEL:
 				case OPTIONS: // probing or keepalive
 				case UPDATE:
 					ss.ChecknSetDialogueChanging(false)
 					lnkdss.ChecknSetDialogueChanging(false)
-					lnkdss.SendCreatedResponse(trans.LinkedTransaction, stsCode, *sipmsg.Body)
+					lnkdss.SendCreatedResponse(trans.LinkedTransaction, stsCode, sipmsg.Body)
 				case ReINVITE:
-					lnkdss.SendCreatedResponse(trans.LinkedTransaction, stsCode, *sipmsg.Body)
+					lnkdss.SendCreatedResponse(trans.LinkedTransaction, stsCode, sipmsg.Body)
 				case BYE:
 					ss.StopAllOutTransactions()
 					ss.FinalizeState()
@@ -668,7 +668,7 @@ func sipStack(sipmsg *SipMessage, ss *SipSession, newSesType NewSessionType) {
 						ss.Ack3xxTo6xxFinalize()
 					}
 				case ReINVITE, UPDATE:
-					lnkdss.SendCreatedResponse(trans.LinkedTransaction, stsCode, *sipmsg.Body)
+					lnkdss.SendCreatedResponse(trans.LinkedTransaction, stsCode, sipmsg.Body)
 				case BYE:
 					ss.StopAllOutTransactions()
 					ss.FinalizeState()

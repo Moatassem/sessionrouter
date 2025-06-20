@@ -9,7 +9,7 @@ import (
 	"time"
 )
 
-func (session *SipSession) CreateSARequest(rqstpk RequestPack, body MessageBody) *Transaction {
+func (session *SipSession) CreateSARequest(rqstpk RequestPack, body *MessageBody) *Transaction {
 	switch rqstpk.Method {
 	case OPTIONS:
 		session.FwdCSeq = 911
@@ -29,10 +29,10 @@ func (session *SipSession) CreateSARequest(rqstpk RequestPack, body MessageBody)
 	return st
 }
 
-func (session *SipSession) prepareSARequestHeaders(st *Transaction, rqstpk RequestPack, msgbody MessageBody) {
+func (session *SipSession) prepareSARequestHeaders(st *Transaction, rqstpk RequestPack, msgbody *MessageBody) {
 	st.RequestMessage = NewRequestMessage(rqstpk.Method, rqstpk.RUriUP)
 	session.buildSARequestHeaders(st, rqstpk, st.RequestMessage)
-	st.RequestMessage.Body = &msgbody
+	st.RequestMessage.Body = msgbody
 	st.SentMessage = st.RequestMessage
 }
 
@@ -103,7 +103,7 @@ func (session *SipSession) buildSARequestHeaders(st *Transaction, rqstpk Request
 
 // ======================================
 
-func (session *SipSession) CreateLinkedINVITE(userpart string, body MessageBody) (*Transaction, *SipMessage) {
+func (session *SipSession) CreateLinkedINVITE(userpart string, body *MessageBody) (*Transaction, *SipMessage) {
 	trans := session.addOutgoingRequest(INVITE, nil)
 	sipmsg := NewRequestMessage(INVITE, userpart)
 	sipmsg.Headers = NewSHsPointer(true)
@@ -113,11 +113,11 @@ func (session *SipSession) CreateLinkedINVITE(userpart string, body MessageBody)
 	return trans, sipmsg
 }
 
-func (session *SipSession) SendCreatedRequest(m Method, trans *Transaction, body MessageBody) {
+func (session *SipSession) SendCreatedRequest(m Method, trans *Transaction, body *MessageBody) {
 	session.SendCreatedRequestDetailed(RequestPack{Method: m}, trans, body)
 }
 
-func (session *SipSession) SendCreatedRequestDetailed(rqstpk RequestPack, trans *Transaction, body MessageBody) {
+func (session *SipSession) SendCreatedRequestDetailed(rqstpk RequestPack, trans *Transaction, body *MessageBody) {
 	newtrans := session.addOutgoingRequest(rqstpk.Method, trans)
 	if newtrans == nil {
 		return
@@ -321,7 +321,7 @@ func (session *SipSession) prepareRequestHeaders(trans *Transaction, rqstpk Requ
 // shared between subsequent requests and linked INVITE
 //
 //nolint:cyclop
-func (session *SipSession) processRequestHeaders(trans *Transaction, sipmsg *SipMessage, rqstpk RequestPack, msgbody MessageBody) {
+func (session *SipSession) processRequestHeaders(trans *Transaction, sipmsg *SipMessage, rqstpk RequestPack, msgbody *MessageBody) {
 	hdrs := sipmsg.Headers
 
 	// Add Date header
@@ -340,7 +340,7 @@ func (session *SipSession) processRequestHeaders(trans *Transaction, sipmsg *Sip
 	}
 
 	// Set msgbody
-	sipmsg.Body = &msgbody
+	sipmsg.Body = msgbody
 	sipmsg.Body.ParseNPrepareSDP(session)
 
 	if sl := sipmsg.StartLine; sl.Method == INVITE {
