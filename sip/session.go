@@ -12,6 +12,8 @@ import (
 	"SRGo/sip/mode"
 	"SRGo/sip/state"
 	"SRGo/sip/status"
+
+	"github.com/Moatassem/sdp"
 )
 
 type SipSession struct {
@@ -53,6 +55,7 @@ type SipSession struct {
 
 	EgressProxy *net.UDPAddr
 
+	MediaConn       *net.UDPConn
 	udpListenser    *net.UDPConn
 	RemoteUserAgent *SipUdpUserAgent
 
@@ -60,10 +63,9 @@ type SipSession struct {
 	BwdCSeq uint32
 	RSeq    uint32
 
-	RemoteBody        MessageBody // to save body if SDP is included
-	SDPHashValue      string
-	SDPSessionID      uint64
-	SDPSessionVersion uint64
+	SDPSession        *sdp.Session
+	SDPSessionID      int64
+	SDPSessionVersion int64
 
 	LinkedSession *SipSession
 
@@ -834,7 +836,7 @@ func (session *SipSession) DropMe() {
 	if session.probingTicker != nil {
 		session.probingTicker.Stop()
 	}
-
+	MediaEngine.ReleaseSocket(session.MediaConn)
 	// inst := cdr.Instance{}
 	// cdr.AddNew(inst)
 	session.IsDisposed = true

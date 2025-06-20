@@ -125,7 +125,6 @@ func (session *SipSession) SendCreatedRequestDetailed(rqstpk RequestPack, trans 
 	sipmsg := NewRequestMessage(rqstpk.Method, "")
 	session.prepareRequestHeaders(newtrans, rqstpk, sipmsg)
 	session.processRequestHeaders(newtrans, sipmsg, rqstpk, body)
-	sipmsg.Body = &body
 
 	newtrans.IsProbing = rqstpk.IsProbing // set by probing SIP OPTIONS
 	newtrans.RequestMessage = sipmsg
@@ -322,7 +321,7 @@ func (session *SipSession) prepareRequestHeaders(trans *Transaction, rqstpk Requ
 // shared between subsequent requests and linked INVITE
 //
 //nolint:cyclop
-func (session *SipSession) processRequestHeaders(trans *Transaction, sipmsg *SipMessage, rqstpk RequestPack, msgBody MessageBody) {
+func (session *SipSession) processRequestHeaders(trans *Transaction, sipmsg *SipMessage, rqstpk RequestPack, msgbody MessageBody) {
 	hdrs := sipmsg.Headers
 
 	// Add Date header
@@ -341,7 +340,8 @@ func (session *SipSession) processRequestHeaders(trans *Transaction, sipmsg *Sip
 	}
 
 	// Set msgbody
-	sipmsg.Body = &msgBody
+	sipmsg.Body = &msgbody
+	sipmsg.Body.ParseNPrepareSDP(session)
 
 	if sl := sipmsg.StartLine; sl.Method == INVITE {
 		trans.RequestMessage = sipmsg

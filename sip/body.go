@@ -1,7 +1,11 @@
 package sip
 
 import (
+	"SRGo/global"
 	. "SRGo/global"
+	"fmt"
+
+	"github.com/Moatassem/sdp"
 )
 
 type MessageBody struct {
@@ -49,6 +53,45 @@ func NewInData(binbytes []byte) MessageBody {
 
 // ===============================================================
 
+func (messagebody *MessageBody) ParseNPrepareSDP(ss *SipSession) {
+	if !messagebody.ContainsSDP() {
+		return
+	}
+
+	ct := messagebody.PartsContents[SDP]
+
+	sdpSession, err := sdp.Parse(ct.Bytes)
+	if err != nil {
+		LogError(LTConfiguration, fmt.Sprintf("Failed to parse SDP: %v", err))
+		return
+	}
+
+	sdpSession.Name = global.B2BUAName
+
+	if ss.RoutingData != nil && ss.RoutingData.SteerMedia && ss.MediaConn != nil {
+		ipv4, port := GetUDPIPPortFromConn(ss.MediaConn)
+		sdpSession.SetConnection(sdp.Audio, ipv4, port, false)
+	}
+
+	if ss.SDPSessionID == 0 {
+		ss.SDPSessionID = int64(RandomNum(1000, 9000))
+	}
+	sdpSession.Origin.SessionID = ss.SDPSessionID
+
+	if ss.SDPSession == nil {
+		ss.SDPSession = sdpSession
+		ss.SDPSessionVersion = 1
+	} else if !ss.SDPSession.Equals(sdpSession) {
+		ss.SDPSession = sdpSession
+		ss.SDPSessionVersion += 1
+	}
+
+	sdpSession.Origin.SessionVersion = ss.SDPSessionVersion
+
+	ct.Bytes = sdpSession.Bytes()
+	messagebody.PartsContents[SDP] = ct
+}
+
 func (messagebody *MessageBody) WithNoBody() bool {
 	return messagebody.PartsContents == nil
 }
@@ -84,13 +127,13 @@ func (messagebody *MessageBody) ContainsSDP() bool {
 	return ok
 }
 
-// func (messagebody *MessageBody) IsT38Image() bool {
-// 	sess, err := sdp.Parse(messagebody.PartsContents[SDP].Bytes)
-// 	if err != nil {
-// 		return false
-// 	}
-// 	return sess.IsT38Image()
-// }
+func (messagebody *MessageBody) IsT38Image() bool {
+	sess, err := sdp.Parse(messagebody.PartsContents[SDP].Bytes)
+	if err != nil {
+		return false
+	}
+	return sess.IsT38Image()
+}
 
 func (messagebody *MessageBody) IsJSON() bool {
 	if messagebody.WithNoBody() {

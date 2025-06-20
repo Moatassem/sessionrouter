@@ -50,9 +50,6 @@ func (ss1 *SipSession) RouteRequest(trans1 *Transaction, sipmsg1 *SipMessage) {
 		// isCallerPhone := phone.Phones.IsPhoneExt(getURIUsername(sipmsg1.FromHeader))
 	}
 
-	// set body in ss1 that will be sent to ss2 after processing
-	ss1.RemoteBody = *sipmsg1.Body
-
 	rd := ss1.RoutingData
 
 	// if isMRF && ss1.IsBeingEstablished() && ss1.IsDelayedOfferCall && !trans1.RequestMessage.IsMethodAllowed(UPDATE) {
@@ -70,7 +67,7 @@ func (ss1 *SipSession) RouteRequest(trans1 *Transaction, sipmsg1 *SipMessage) {
 	ss2.LinkedSession = ss1
 	ss1.LinkedSession = ss2
 
-	trans2, _ := ss2.CreateLinkedINVITE(rd.OutRuriUserpart, ss1.RemoteBody)
+	trans2, _ := ss2.CreateLinkedINVITE(rd.OutRuriUserpart, *sipmsg1.Body)
 
 	ss2.IsPRACKSupported = ss1.IsPRACKSupported
 	// TODO - return target and prefix .. ex. cdpn:+201223309859, prefix: 042544154
@@ -92,10 +89,7 @@ func (ss1 *SipSession) RouteRequestInternal(trans1 *Transaction, sipmsg1 *SipMes
 
 	upart := sipmsg1.StartLine.UserPart
 
-	var (
-		rd     *RoutingRecord
-		upart2 string
-	)
+	var upart2 string
 
 	if phone, ok := phone.Phones.Get(upart); ok {
 		ss1.RoutingData = &RoutingRecord{NoAnswerTimeout: 60, No18xTimeout: 30, MaxCallDuration: 7200, OutRuriUserpart: upart}
@@ -122,23 +116,17 @@ func (ss1 *SipSession) RouteRequestInternal(trans1 *Transaction, sipmsg1 *SipMes
 		goto routeCall
 	}
 
-	rd, upart2 = RoutingEngineDB.Get(upart)
-	if rd != nil {
-		ss1.RoutingData = rd
+	ss1.RoutingData, upart2 = RoutingEngineDB.Get(upart)
+	if ss1.RoutingData != nil {
 
-		if rd.OutCallFlow == TransformEarlyToFinal && ss1.IsDelayedOfferCall {
+		if ss1.RoutingData.OutCallFlow == TransformEarlyToFinal && ss1.IsDelayedOfferCall {
 			ss1.RejectMe(trans1, status.NotAcceptableHere, q850.BearerCapabilityNotAvailable, "Delayed offer not supported")
 			return
 		}
 
-		if rd.No18xTimeout <= 0 && rd.NoAnswerTimeout <= 0 {
+		if ss1.RoutingData.No18xTimeout <= 0 && ss1.RoutingData.NoAnswerTimeout <= 0 {
 			ss1.RejectMe(trans1, status.ServiceUnavailable, q850.NormalUnspecified, "Answer and 18x Timeouts cannot be both disabled")
 			return
-		}
-
-		// TODO pending
-		if rd.SteerMedia {
-
 		}
 
 		goto routeCall
@@ -153,10 +141,15 @@ func (ss1 *SipSession) RouteRequestInternal(trans1 *Transaction, sipmsg1 *SipMes
 	return
 
 routeCall:
-	// set body in ss1 that will be sent to ss2 after processing
-	ss1.RemoteBody = *sipmsg1.Body
+	rd := ss1.RoutingData
 
-	rd = ss1.RoutingData
+	if rd.SteerMedia {
+		ss1.MediaConn = MediaEngine.ReserveSocket()
+		if ss1.MediaConn == nil {
+			ss1.RejectMe(trans1, status.ServiceUnavailable, q850.ResourceUnavailableUnspecified, "No media port available for ingress")
+			return
+		}
+	}
 
 	ss2 := NewSS(OUTBOUND)
 	ss2.EgressProxy = ProxyUdpServer
@@ -171,7 +164,16 @@ routeCall:
 	ss2.LinkedSession = ss1
 	ss1.LinkedSession = ss2
 
-	trans2, _ := ss2.CreateLinkedINVITE(upart2, ss1.RemoteBody)
+	if rd.SteerMedia {
+		ss2.MediaConn = MediaEngine.ReserveSocket()
+		if ss2.MediaConn == nil {
+			ss2.DropMe()
+			ss1.RejectMe(trans1, status.ServiceUnavailable, q850.ResourceUnavailableUnspecified, "No media port available for egress")
+			return
+		}
+	}
+
+	trans2, _ := ss2.CreateLinkedINVITE(upart2, *sipmsg1.Body)
 
 	ss2.TransformEarlyToFinal = rd.OutCallFlow == TransformEarlyToFinal
 
