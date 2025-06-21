@@ -118,7 +118,6 @@ func (ss1 *SipSession) RouteRequestInternal(trans1 *Transaction, sipmsg1 *SipMes
 
 	ss1.RoutingData, upart2 = RoutingEngineDB.Get(upart)
 	if ss1.RoutingData != nil {
-
 		if ss1.RoutingData.OutCallFlow == TransformEarlyToFinal && ss1.IsDelayedOfferCall {
 			ss1.RejectMe(trans1, status.NotAcceptableHere, q850.BearerCapabilityNotAvailable, "Delayed offer not supported")
 			return

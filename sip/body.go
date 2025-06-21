@@ -1,7 +1,6 @@
 package sip
 
 import (
-	"SRGo/global"
 	. "SRGo/global"
 	"fmt"
 
@@ -66,7 +65,7 @@ func (messagebody *MessageBody) ParseNPrepareSDP(ss *SipSession) {
 		return
 	}
 
-	sdpSession.Name = global.B2BUAName
+	sdpSession.Name = B2BUAName
 
 	if ss.RoutingData != nil && ss.RoutingData.SteerMedia && ss.MediaConn != nil {
 		ipv4, port := GetUDPIPPortFromConn(ss.MediaConn)
@@ -83,7 +82,7 @@ func (messagebody *MessageBody) ParseNPrepareSDP(ss *SipSession) {
 		ss.SDPSessionVersion = 1
 	} else if !ss.SDPSession.Equals(sdpSession) {
 		ss.SDPSession = sdpSession
-		ss.SDPSessionVersion += 1
+		ss.SDPSessionVersion++
 	}
 
 	sdpSession.Origin.SessionVersion = ss.SDPSessionVersion

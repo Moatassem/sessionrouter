@@ -8,15 +8,15 @@ import (
 )
 
 var (
-	pipe         chan Instance
-	fields       []Field  = getAllFields()
-	stringfields []string = CastStringSlice(fields)
+	pipe         chan map[Field]string
+	fields       = getAllFields()
+	stringfields = CastStringSlice(fields)
 )
 
 const CDRFilename string = "cdrs_current.txt"
 
 func init() {
-	pipe = make(chan Instance, global.CdrBufferSize)
+	pipe = make(chan map[Field]string, global.CdrBufferSize)
 	if file, ok := prepareCdrFiles(); ok {
 		go writeCDRs(file)
 	}
@@ -55,10 +55,10 @@ func writeCDRs(file *os.File) {
 	writeLine(strings.Join(stringfields, ";"))
 
 	// write CDRs
-	for inst := range pipe {
+	for fieldsmap := range pipe {
 		var sb strings.Builder
 		for _, f := range fields {
-			sb.WriteString(inst.data[f])
+			sb.WriteString(fieldsmap[f])
 			sb.WriteString(";")
 		}
 		writeLine(sb.String()[:sb.Len()-1])

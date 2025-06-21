@@ -2,6 +2,14 @@ package cdr
 
 import "fmt"
 
+type (
+	Field string
+
+	Instance struct {
+		data map[Field]string
+	}
+)
+
 const (
 	CallID                 Field = "callId"                 // Unique identifier for the call
 	CallerNumber           Field = "callerNumber"           // Original Caller phone number
@@ -26,14 +34,6 @@ const (
 	TerminationCause       Field = "terminationCause"       // Reason for call termination
 	RedirectionStatus      Field = "redirectionStatus"      // Indicates if redirection occurred
 	RoamingStatus          Field = "roamingStatus"          // Indicates if caller was roaming
-)
-
-type (
-	Field string
-
-	Instance struct {
-		data map[Field]string
-	}
 )
 
 func getAllFields() []Field {
@@ -76,16 +76,16 @@ func CastStringSlice[T fmt.Stringer](input []T) []string {
 	return output
 }
 
-func NewInstance() *Instance {
+func New() *Instance {
 	return &Instance{
-		data: make(map[Field]string),
+		data: make(map[Field]string, len(stringfields)),
 	}
-}
-
-func AddNew(inst *Instance) {
-	pipe <- *inst
 }
 
 func (inst *Instance) Set(field Field, value string) {
 	inst.data[field] = value
+}
+
+func (inst *Instance) Flush() {
+	pipe <- inst.data
 }

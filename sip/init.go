@@ -9,7 +9,6 @@ import (
 	"time"
 
 	"SRGo/cl"
-	"SRGo/global"
 	. "SRGo/global"
 	"SRGo/phone"
 )
@@ -45,7 +44,7 @@ func readJsonFile() []byte {
 	return data
 }
 
-func StartServer(asUdpskt *global.UdpSocket, ipv4 string, sup, kai, htp, indint int, uproxy string) *net.UDPConn {
+func StartServer(asUdpskt *UdpSocket, ipv4 string, sup, kai, htp, indint int, uproxy string) *net.UDPConn {
 	fmt.Print("Initializing Global Variables...")
 
 	Sessions = NewConcurrentMapMutex[*SipSession](QueueSize)

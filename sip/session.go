@@ -837,8 +837,12 @@ func (session *SipSession) DropMe() {
 		session.probingTicker.Stop()
 	}
 	MediaEngine.ReleaseSocket(session.MediaConn)
-	// inst := cdr.Instance{}
-	// cdr.AddNew(inst)
+
+	// Create CDR
+	// sesCDR := cdr.New()
+	// sesCDR.Set(cdr.CallDirection, session.Direction.String())
+	// sesCDR.Flush()
+
 	session.IsDisposed = true
 	Sessions.Delete(session.CallID)
 }
