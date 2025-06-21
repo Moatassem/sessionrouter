@@ -14,6 +14,7 @@ const (
 
 	RTPHeaderSize  int = 12
 	RTPPayloadSize int = 160
+	RTPMaxSize     int = 1500
 	MediaStartPort int = 7000
 	MediaEndPort   int = 57000
 
@@ -43,6 +44,7 @@ var (
 
 	BufferPool      *sync.Pool
 	RTPRXBufferPool *sync.Pool
+	RTPBuffer       *sync.Pool
 	RTPTXBufferPool *sync.Pool
 	Prometrics      *prometheus.Metrics
 	CallLimiter     *cl.CallLimiter

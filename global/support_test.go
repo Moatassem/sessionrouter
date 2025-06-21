@@ -3,6 +3,7 @@ package global_test
 import (
 	"SRGo/global"
 	"reflect"
+	"sync"
 	"testing"
 )
 
@@ -132,4 +133,120 @@ func TestBuildUdpAddr2(t *testing.T) {
 			t.Errorf("BuildUdpSocket(%q, 5060) = %v; want %v", test.input, result.String(), test.expected)
 		}
 	}
+}
+
+// func BenchmarkSyncPool(b *testing.B) {
+
+// 	b.ReportAllocs()
+
+// 	b.Run("With Pointers", func(b *testing.B) {
+// 		pool := &sync.Pool{
+// 			New: func() any {
+// 				lst := make([]byte, 512)
+// 				return &lst
+// 			},
+// 		}
+// 		for b.Loop() {
+// 			buf := pool.Get().(*[]byte)
+// 			// Simulate some work with the buffer
+// 			for i := range *buf {
+// 				(*buf)[i] = byte(i % 256)
+// 			}
+// 			pool.Put(buf)
+// 		}
+// 	})
+
+// 	b.Run("Without Pointers", func(b *testing.B) {
+// 		pool := &sync.Pool{
+// 			New: func() any {
+// 				return make([]byte, 512)
+// 			},
+// 		}
+// 		for b.Loop() {
+// 			buf := pool.Get().([]byte)
+// 			// Simulate some work with the buffer
+// 			for i := range buf {
+// 				buf[i] = byte(i % 256)
+// 			}
+// 			pool.Put(buf)
+// 		}
+// 	})
+// }
+
+func BenchmarkSyncPool(b *testing.B) {
+	b.ReportAllocs()
+
+	// Pointer version (efficient, no allocations)
+	b.Run("With Pointers", func(b *testing.B) {
+		// var count atomic.Int64
+		// var goroutines atomic.Int64
+		pool := &sync.Pool{
+			New: func() any {
+				// count.Add(1)
+				lst := make([]byte, 512)
+				return &lst
+			},
+		}
+		for b.Loop() {
+			go func() {
+				buf := pool.Get().(*[]byte)
+				for i := range *buf {
+					(*buf)[i] = byte(i % 256)
+				}
+				pool.Put(buf)
+				// goroutines.Add(1)
+			}()
+		}
+
+		// fmt.Printf("With Pointers\nTotal buffers created: %d, Total goroutines: %d\n", count.Load(), goroutines.Load())
+	})
+
+	// Optimized non-pointer version (zero allocations)
+	b.Run("Without Pointers", func(b *testing.B) {
+		// var count atomic.Int64
+		// var goroutines atomic.Int64
+		pool := &sync.Pool{
+			New: func() any {
+				// count.Add(1)
+				return make([]byte, 512)
+			},
+		}
+		for b.Loop() {
+			go func() {
+				// goroutines.Add(1)
+				buf := pool.Get().([]byte)
+				// Re-slice to full capacity to ensure proper length
+				// buf = buf[:512]
+				for i := range buf {
+					buf[i] = byte(i % 256)
+				}
+				// Reset slice length to 0 before returning to pool
+				pool.Put(buf)
+			}()
+		}
+		// fmt.Printf("Without Pointers\nTotal buffers created: %d, Total goroutines: %d\n", count.Load(), goroutines.Load())
+	})
+
+	b.Run("Array Pointer", func(b *testing.B) {
+		// var count atomic.Int64
+		// var goroutines atomic.Int64
+		pool := &sync.Pool{
+			New: func() any {
+				// count.Add(1)
+				return new([512]byte)
+			},
+		}
+		for b.Loop() {
+			go func() {
+				// goroutines.Add(1)
+				arr := pool.Get().(*[512]byte)
+				// Direct array access - most efficient
+				for i := range len(arr) {
+					arr[i] = byte(i % 256)
+				}
+				pool.Put(arr)
+			}()
+		}
+		// fmt.Printf("Array Pointer\nTotal buffers created: %d, Total goroutines: %d\n", count.Load(), goroutines.Load())
+	})
 }

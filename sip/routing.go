@@ -286,14 +286,34 @@ func (ss *SipSession) HandleNSteerMediaWithPool() {
 		}()
 	}
 }
-
-func (ss *SipSession) HandleNSteerMedia() {
+func (ss *SipSession) HandleNSteerMediaWithPool2() {
 	if ss.MediaConn == nil {
 		return
 	}
 
-	buf := make([]byte, RTPHeaderSize+RTPPayloadSize)
-
+	for {
+		buf, _ := RTPBuffer.Get().([]byte)
+		n, _, err := ss.MediaConn.ReadFromUDP(buf)
+		if err != nil {
+			RTPBuffer.Put(buf)
+			break
+		}
+		go func() {
+			lnkdss := ss.LinkedSession
+			if lnkdss != nil && lnkdss.MediaConn != nil {
+				if rmtAddr := lnkdss.RemoteMediaUdpAddr(); rmtAddr != nil {
+					lnkdss.MediaConn.WriteToUDP(buf[:n], rmtAddr)
+				}
+			}
+			RTPBuffer.Put(buf)
+		}()
+	}
+}
+func (ss *SipSession) HandleNSteerMedia() {
+	if ss.MediaConn == nil {
+		return
+	}
+	buf := make([]byte, RTPMaxSize)
 	for {
 		n, _, err := ss.MediaConn.ReadFromUDP(buf)
 		if err != nil {
