@@ -1,5 +1,5 @@
-github.com/Moatassem/sdp v0.2.1 h1:NJILq5tDIWQdKt4TYtmURC1P7K5jCMFBVLXUuziDhVY=
-github.com/Moatassem/sdp v0.2.1/go.mod h1:+2XMgkMWp8/xgReSPRB8IdG33GF0lnRoyfxfhUxUu50=
+github.com/Moatassem/sdp v0.2.2 h1:CP5YeJCQdD/i4qso5uAGf0LeprWw4OwyjILiyrhIVdA=
+github.com/Moatassem/sdp v0.2.2/go.mod h1:+2XMgkMWp8/xgReSPRB8IdG33GF0lnRoyfxfhUxUu50=
 github.com/beorn7/perks v1.0.1 h1:VlbKKnNfV8bJzeqoa4cOKqO6bYr3WgKZxO8Z16+hsOM=
 github.com/beorn7/perks v1.0.1/go.mod h1:G2ZrVWU2WbWT9wwq4/hrbKbnv/1ERSJQ0ibhJ6rlkpw=
 github.com/cespare/xxhash/v2 v2.3.0 h1:UL815xU9SqsFlibzuggzjXhog7bL6oX9BbNZnL2UFvs=

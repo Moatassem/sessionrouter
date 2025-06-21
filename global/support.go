@@ -108,7 +108,7 @@ func BuildUdpAddr(ipsocket string, defaultport int) (*net.UDPAddr, bool) {
 	return addr, true
 }
 
-func AreUAddrsEqual(addr1, addr2 *net.UDPAddr) bool {
+func AreUdpAddrsEqual(addr1, addr2 *net.UDPAddr) bool {
 	if addr1 == nil || addr2 == nil {
 		return addr1 == addr2
 	}

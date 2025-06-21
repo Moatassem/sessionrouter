@@ -10,15 +10,16 @@ import (
 
 const (
 	EntityName = "MT-Tools"
-	B2BUAName  = "SRGo/1.6"
+	B2BUAName  = "SRGo/1.7.0"
 
 	RTPHeaderSize  int = 12
 	RTPPayloadSize int = 160
-	MediaStartPort int = 7001
+	MediaStartPort int = 7000
 	MediaEndPort   int = 57000
 
-	CdrBufferSize              = 512
-	PduBufferSize              = 4096
+	CdrBufferSize = 512
+	PduBufferSize = 4096
+
 	T1Timer                    = 500
 	CancelTimeOut              = 10 // seconds
 	ReTXCount                  = 5
@@ -40,10 +41,12 @@ var (
 	HttpTcpPort int
 	RateLimit   = -1 // TODO 2000 || 0 = switched off, -1 = unlimited, > 0 = limited
 
-	BufferPool  *sync.Pool
-	Prometrics  *prometheus.Metrics
-	CallLimiter *cl.CallLimiter
-	WtGrp       sync.WaitGroup
+	BufferPool      *sync.Pool
+	RTPRXBufferPool *sync.Pool
+	RTPTXBufferPool *sync.Pool
+	Prometrics      *prometheus.Metrics
+	CallLimiter     *cl.CallLimiter
+	WtGrp           sync.WaitGroup
 )
 
 var (

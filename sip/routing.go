@@ -19,7 +19,7 @@ func (ss1 *SipSession) RouteRequest(trans1 *Transaction, sipmsg1 *SipMessage) {
 		ss1.RoutingData = &RoutingRecord{NoAnswerTimeout: 180, No18xTimeout: 60, MaxCallDuration: 0, OutRuriUserpart: sipmsg1.StartLine.UserPart}
 
 		asskt := ASUserAgent.GetUDPAddr()
-		if AreUAddrsEqual(ss1.RemoteUDP(), asskt) { // incoming from SIP Layer
+		if AreUdpAddrsEqual(ss1.RemoteUDP(), asskt) { // incoming from SIP Layer
 			if phone, ok := phone.Phones.Get(ss1.RoutingData.OutRuriUserpart); ok {
 				ua := phone.GetUA()
 				ss1.RoutingData.RemoteUDPSocket = ua.GetUDPSocket()
@@ -148,6 +148,7 @@ routeCall:
 			ss1.RejectMe(trans1, status.ServiceUnavailable, q850.ResourceUnavailableUnspecified, "No media port available for ingress")
 			return
 		}
+		go ss1.HandleNSteerMedia()
 	}
 
 	ss2 := NewSS(OUTBOUND)
@@ -170,6 +171,7 @@ routeCall:
 			ss1.RejectMe(trans1, status.ServiceUnavailable, q850.ResourceUnavailableUnspecified, "No media port available for egress")
 			return
 		}
+		go ss2.HandleNSteerMedia()
 	}
 
 	trans2, _ := ss2.CreateLinkedINVITE(upart2, sipmsg1.Body)
@@ -259,4 +261,47 @@ func ProbeUA(conn *net.UDPConn, ua *SipUdpUserAgent) {
 	ss.SetState(state.BeingProbed)
 	ss.AddMe()
 	ss.SendSTMessage(trans)
+}
+
+func (ss *SipSession) HandleNSteerMediaWithPool() {
+	if ss.MediaConn == nil {
+		return
+	}
+
+	for {
+		buf, _ := RTPRXBufferPool.Get().(*[]byte)
+		n, _, err := ss.MediaConn.ReadFromUDP(*buf)
+		if err != nil {
+			RTPRXBufferPool.Put(buf)
+			break
+		}
+		lnkdss := ss.LinkedSession
+		if lnkdss != nil && lnkdss.MediaConn != nil {
+			if rmtAddr := lnkdss.RemoteMediaUdpAddr(); rmtAddr != nil {
+				lnkdss.MediaConn.WriteToUDP((*buf)[:n], rmtAddr)
+			}
+		}
+		RTPRXBufferPool.Put(buf)
+	}
+}
+
+func (ss *SipSession) HandleNSteerMedia() {
+	if ss.MediaConn == nil {
+		return
+	}
+
+	buf := make([]byte, RTPHeaderSize+RTPPayloadSize)
+
+	for {
+		n, _, err := ss.MediaConn.ReadFromUDP(buf)
+		if err != nil {
+			break
+		}
+		lnkdss := ss.LinkedSession
+		if lnkdss != nil && lnkdss.MediaConn != nil {
+			if rmtAddr := lnkdss.RemoteMediaUdpAddr(); rmtAddr != nil {
+				lnkdss.MediaConn.WriteToUDP(buf[:n], rmtAddr)
+			}
+		}
+	}
 }

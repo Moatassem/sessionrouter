@@ -6,13 +6,17 @@ import (
 
 func InitializeEngine() {
 	responsesHeadersInit()
-	BufferPool = newSyncPool()
+	BufferPool = newSyncPool(PduBufferSize, PduBufferSize)
+
+	rtpsz := RTPHeaderSize + RTPPayloadSize
+	RTPRXBufferPool = newSyncPool(rtpsz, rtpsz)
+	RTPTXBufferPool = newSyncPool(0, rtpsz)
 }
 
-func newSyncPool() *sync.Pool {
+func newSyncPool(sz, cap int) *sync.Pool {
 	return &sync.Pool{
 		New: func() any {
-			lst := make([]byte, PduBufferSize)
+			lst := make([]byte, sz, cap)
 			return &lst
 		},
 	}

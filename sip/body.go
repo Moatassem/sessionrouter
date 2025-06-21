@@ -68,8 +68,12 @@ func (messagebody *MessageBody) ParseNPrepareSDP(ss *SipSession) {
 	sdpSession.Name = B2BUAName
 
 	if ss.RoutingData != nil && ss.RoutingData.SteerMedia && ss.MediaConn != nil {
+		if lnkdss := ss.LinkedSession; lnkdss != nil {
+			lnkdss.SetRemoteMediaUdpAddr(sdpSession.GetEffectiveMediaUdpAddr(sdp.Audio))
+		}
 		ipv4, port := GetUDPIPPortFromConn(ss.MediaConn)
 		sdpSession.SetConnection(sdp.Audio, ipv4, port, false)
+
 	}
 
 	if ss.SDPSessionID == 0 {

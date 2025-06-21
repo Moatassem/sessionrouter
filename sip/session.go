@@ -55,7 +55,9 @@ type SipSession struct {
 
 	EgressProxy *net.UDPAddr
 
-	MediaConn       *net.UDPConn
+	MediaConn          *net.UDPConn
+	remoteMediaUdpAddr *net.UDPAddr
+
 	udpListenser    *net.UDPConn
 	RemoteUserAgent *SipUdpUserAgent
 
@@ -108,6 +110,20 @@ func (session *SipSession) ExceedCondition() bool {
 
 //============================================================
 
+func (session *SipSession) RemoteMediaUdpAddr() *net.UDPAddr {
+	session.rmtmutex.RLock()
+	defer session.rmtmutex.RUnlock()
+
+	return session.remoteMediaUdpAddr
+}
+
+func (session *SipSession) SetRemoteMediaUdpAddr(rmt *net.UDPAddr) {
+	session.rmtmutex.Lock()
+	defer session.rmtmutex.Unlock()
+
+	session.remoteMediaUdpAddr = rmt
+}
+
 func (session *SipSession) SetRemoteUDPnListenser(rmt *net.UDPAddr, cn *net.UDPConn) {
 	session.rmtmutex.Lock()
 	defer session.rmtmutex.Unlock()
@@ -143,6 +159,8 @@ func (session *SipSession) UDPListenser() *net.UDPConn {
 
 	return session.udpListenser
 }
+
+// =============================================================
 
 //nolint:cyclop
 func (session *SipSession) GetTransactionSYNC(sipmsg *SipMessage) *Transaction {

@@ -47,8 +47,10 @@ func (mpp *MediaPool) ReleaseSocket(conn *net.UDPConn) bool {
 	}
 	port := global.GetUDPortFromConn(conn)
 	conn.Close()
+
 	mpp.mu.Lock()
 	defer mpp.mu.Unlock()
+
 	if mpp.alloc[port] {
 		mpp.alloc[port] = false
 		return true
