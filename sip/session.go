@@ -121,7 +121,9 @@ func (session *SipSession) SetRemoteMediaUdpAddr(rmt *net.UDPAddr) {
 	session.rmtmutex.Lock()
 	defer session.rmtmutex.Unlock()
 
-	session.remoteMediaUdpAddr = rmt
+	if session.remoteMediaUdpAddr == nil || !AreUdpAddrsEqual(session.remoteMediaUdpAddr, rmt) {
+		session.remoteMediaUdpAddr = rmt
+	}
 }
 
 func (session *SipSession) SetRemoteUDPnListenser(rmt *net.UDPAddr, cn *net.UDPConn) {
