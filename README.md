@@ -1,4 +1,4 @@
-# Session Router v1.7.0 - written from scratch in Golang
+# Session Router v1.7.1 - written from scratch in Golang
 
 - Highly optimized, high performance, modular, carrier-grade B2BUA with capacity **exceeding 2500 CAPS** and **1.5 Million concurrent sessions**
 - Full SIP Headers and Body Manipulation with Stateful HMRs
@@ -40,6 +40,76 @@ Environment variables must be defined in order to launch SR container.
 -e auto_server_ipv4 ="" (optional - auto IPv4 server discover)
 
 -e indialogue_interval="xxx" (optional - sipp testing mode)
+
+## Local Routing DB
+
+You can use "rdb.json" locally to setup Local Routing DB
+
+```json
+[
+  {
+    "userpartPattern": "^777(8157\\d+)",
+    "routingRecord": {
+      "noAnswerTimeout": -1,
+      "no18xTimeout": 7,
+      "maxCallDuration": -1,
+      "outRuriUserpart": "+2385801$1",
+      "outRuriHostport": "",
+      "outCallFlow": "TransformEarlyToFinal"
+    }
+  },
+  {
+    "userpartPattern": "^(12355)$",
+    "routingRecord": {
+      "noAnswerTimeout": -1,
+      "no18xTimeout": 7,
+      "maxCallDuration": -1,
+      "outRuriUserpart": "$1",
+      "outRuriHostport": "192.168.1.2:5098",
+      "outCallFlow": "Transparent",
+      "steerMedia": true
+    }
+  },
+  {
+    "userpartPattern": "^(12389)$",
+    "routingRecord": {
+      "noAnswerTimeout": -1,
+      "no18xTimeout": 7,
+      "maxCallDuration": -1,
+      "outRuriUserpart": "$1",
+      "outRuriHostport": "192.168.1.2:5099",
+      "outCallFlow": "TransformEarlyToFinal"
+    }
+  },
+  {
+    "userpartPattern": "\\d+",
+    "routingRecord": {
+      "noAnswerTimeout": 60,
+      "no18xTimeout": 4,
+      "maxCallDuration": -1,
+      "outRuriUserpart": "12388",
+      "outRuriHostport": "somewhere:5097",
+      "outCallFlow": "Transparent",
+      "steerMedia": true
+    }
+  }
+]
+```
+
+## Existing API calls:
+
+- `GET /api/v1/stats`
+  Get general stats of the server
+- `GET /api/v1/phone`
+  Get server in-memory endpoint Phones
+- `GET /api/v1/session`
+  Get server in-memory SIP sessions
+- `GET /api/v1/config`
+  Get server in-memory Routing DB
+- `PATCH /api/v1/config`
+  Refresh server in-memory DB from the local rdb.json file
+- `GET /metrics`
+  Get server Prometheus scraping & observability
 
 ## Special Headers
 
