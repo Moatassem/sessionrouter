@@ -363,7 +363,7 @@ func (sipmsg *SipMessage) PrepareMessageBytes(ss *SipSession) {
 	// generate body bytes in a separate goroutine
 	go func(bc chan<- []byte) {
 		var bbc bytes.Buffer
-		if sipmsg.Body.PartsContents == nil {
+		if sipmsg.Body == nil || sipmsg.Body.PartsContents == nil {
 			sipmsg.Headers.SetHeader(Content_Type, "")
 			sipmsg.Headers.SetHeader(MIME_Version, "")
 		} else {

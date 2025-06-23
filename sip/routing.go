@@ -228,7 +228,7 @@ func (ss1 *SipSession) RerouteRequest(rspnspk ResponsePack) {
 func (ss *SipSession) HandleRefer(trans *Transaction, sipmsg *SipMessage) {
 	referRuri, errmsg := sipmsg.GetReferToRUIR()
 	if errmsg != "" {
-		ss.SendCreatedResponseDetailed(trans, NewResponsePackRFWarning(status.BadRequest, "", errmsg), EmptyBody())
+		ss.SendCreatedResponseDetailed(trans, NewResponsePackRFWarning(status.BadRequest, "", errmsg), NoBody())
 		return
 	}
 
@@ -238,7 +238,7 @@ func (ss *SipSession) HandleRefer(trans *Transaction, sipmsg *SipMessage) {
 	}
 
 	fmt.Println(referRuri)
-	ss.SendCreatedResponse(trans, status.OK, EmptyBody())
+	ss.SendCreatedResponse(trans, status.OK, NoBody())
 }
 
 // ============================================================================
@@ -256,7 +256,7 @@ func ProbeUA(conn *net.UDPConn, ua *SipUdpUserAgent) {
 	hdrs.AddHeader(Subject, "Out-of-dialogue keep-alive")
 	hdrs.AddHeader(Accept, "application/sdp")
 
-	trans := ss.CreateSARequest(RequestPack{Method: OPTIONS, Max70: true, CustomHeaders: hdrs, RUriUP: "ping", FromUP: "ping", IsProbing: true}, EmptyBody())
+	trans := ss.CreateSARequest(RequestPack{Method: OPTIONS, Max70: true, CustomHeaders: hdrs, RUriUP: "ping", FromUP: "ping", IsProbing: true}, NoBody())
 
 	ss.SetState(state.BeingProbed)
 	ss.AddMe()

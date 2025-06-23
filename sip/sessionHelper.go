@@ -131,7 +131,7 @@ func (session *SipSession) addOutgoingRequest(rt Method, lt *Transaction) *Trans
 	// Reject any pending incoming requests before sending BYE
 	if rt == BYE {
 		for _, pendingST := range session.GetPendingIncomingTransactionsSYNC() {
-			session.SendCreatedResponseDetailed(pendingST, ResponsePack{StatusCode: 503, CustomHeaders: NewSHQ850OrSIP(31, "Session being cleared", "")}, EmptyBody())
+			session.SendCreatedResponseDetailed(pendingST, ResponsePack{StatusCode: 503, CustomHeaders: NewSHQ850OrSIP(31, "Session being cleared", "")}, NoBody())
 		}
 	}
 

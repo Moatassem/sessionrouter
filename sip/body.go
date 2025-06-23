@@ -17,9 +17,8 @@ type ContentPart struct {
 	Bytes   []byte
 }
 
-func EmptyBody() *MessageBody {
-	var mb MessageBody
-	return &mb
+func NoBody() *MessageBody {
+	return nil
 }
 
 func NewContentPart(bt BodyType, bytes []byte) ContentPart {

@@ -516,10 +516,10 @@ func CheckPendingTransaction(ss *SipSession, tx *Transaction) {
 			if tx.Direction == INBOUND {
 				if lnkdss.Direction == OUTBOUND {
 					if lnkdss.IsBeingEstablished() && lnkdss.Received200() {
-						lnkdss.SendCreatedRequest(ACK, nil, EmptyBody())
+						lnkdss.SendCreatedRequest(ACK, nil, NoBody())
 						lnkdss.WaitMS(100)
 						lnkdss.SetState(state.BeingDropped)
-						lnkdss.SendCreatedRequestDetailed(RequestPack{Method: BYE, CustomHeaders: NewSHQ850OrSIP(487, "Inbound INVITE timed-out", "")}, nil, EmptyBody())
+						lnkdss.SendCreatedRequestDetailed(RequestPack{Method: BYE, CustomHeaders: NewSHQ850OrSIP(487, "Inbound INVITE timed-out", "")}, nil, NoBody())
 						return
 					}
 					lnkdss.CancelMe(31, "Caller timed-out")
@@ -684,7 +684,7 @@ func (ss *SipSession) probingTickerHandler(doneChan chan any, tkChan <-chan time
 			return
 		case <-tkChan:
 			if ss.IsEstablished() {
-				ss.SendCreatedRequestDetailed(RequestPack{Method: OPTIONS, Max70: true, IsProbing: true}, nil, EmptyBody())
+				ss.SendCreatedRequestDetailed(RequestPack{Method: OPTIONS, Max70: true, IsProbing: true}, nil, NoBody())
 			}
 		}
 	}
@@ -748,12 +748,12 @@ func (session *SipSession) IsLinked() bool {
 func (ss *SipSession) ReleaseCall(details string) (s1 bool, s2 bool) {
 	if ss.IsEstablished() {
 		ss.SetState(state.BeingDropped)
-		ss.SendCreatedRequestDetailed(RequestPack{Method: BYE, Max70: true, CustomHeaders: NewSHQ850OrSIP(0, details, "")}, nil, EmptyBody())
+		ss.SendCreatedRequestDetailed(RequestPack{Method: BYE, Max70: true, CustomHeaders: NewSHQ850OrSIP(0, details, "")}, nil, NoBody())
 		s1 = true
 	}
 	if lnkss := ss.LinkedSession; lnkss != nil && lnkss.IsEstablished() {
 		lnkss.SetState(state.BeingDropped)
-		lnkss.SendCreatedRequestDetailed(RequestPack{Method: BYE, Max70: true, CustomHeaders: NewSHQ850OrSIP(0, details, "")}, nil, EmptyBody())
+		lnkss.SendCreatedRequestDetailed(RequestPack{Method: BYE, Max70: true, CustomHeaders: NewSHQ850OrSIP(0, details, "")}, nil, NoBody())
 		s2 = true
 	}
 	return
@@ -762,12 +762,12 @@ func (ss *SipSession) ReleaseCall(details string) (s1 bool, s2 bool) {
 func (ss *SipSession) ReleaseEarlyFinalCall(details string) (s1 bool, s2 bool) {
 	if ss.IsBeingEstablished() {
 		ss.SetState(state.BeingFailed)
-		ss.SendCreatedResponseDetailed(nil, ResponsePack{StatusCode: status.NotAcceptable, CustomHeaders: NewSHQ850OrSIP(0, details, "")}, EmptyBody())
+		ss.SendCreatedResponseDetailed(nil, ResponsePack{StatusCode: status.NotAcceptable, CustomHeaders: NewSHQ850OrSIP(0, details, "")}, NoBody())
 		s1 = true
 	}
 	if lnkss := ss.LinkedSession; lnkss != nil && lnkss.IsEstablished() {
 		lnkss.SetState(state.BeingDropped)
-		lnkss.SendCreatedRequestDetailed(RequestPack{Method: BYE, Max70: true, CustomHeaders: NewSHQ850OrSIP(0, details, "")}, nil, EmptyBody())
+		lnkss.SendCreatedRequestDetailed(RequestPack{Method: BYE, Max70: true, CustomHeaders: NewSHQ850OrSIP(0, details, "")}, nil, NoBody())
 		s2 = true
 	}
 	return
@@ -776,7 +776,7 @@ func (ss *SipSession) ReleaseEarlyFinalCall(details string) (s1 bool, s2 bool) {
 func (ss *SipSession) ReleaseMe(details string, linkedTrans *Transaction) bool {
 	if ss.IsEstablished() {
 		ss.SetState(state.BeingCleared)
-		ss.SendCreatedRequestDetailed(RequestPack{Method: BYE, Max70: true, CustomHeaders: NewSHQ850OrSIP(0, details, "")}, linkedTrans, EmptyBody())
+		ss.SendCreatedRequestDetailed(RequestPack{Method: BYE, Max70: true, CustomHeaders: NewSHQ850OrSIP(0, details, "")}, linkedTrans, NoBody())
 		return true
 	}
 	return false
@@ -791,9 +791,9 @@ func (session *SipSession) CancelMe(q850 int, details string) bool {
 		session.StopNoTimers()
 		session.SetState(state.BeingCancelled)
 		if q850 == -1 || details == "" {
-			session.SendCreatedRequest(CANCEL, nil, EmptyBody())
+			session.SendCreatedRequest(CANCEL, nil, NoBody())
 		} else {
-			session.SendCreatedRequestDetailed(RequestPack{Method: CANCEL, CustomHeaders: NewSHQ850OrSIP(q850, details, "")}, nil, EmptyBody())
+			session.SendCreatedRequestDetailed(RequestPack{Method: CANCEL, CustomHeaders: NewSHQ850OrSIP(q850, details, "")}, nil, NoBody())
 		}
 		return true
 	}
@@ -807,7 +807,7 @@ func (session *SipSession) RejectMe(trans *Transaction, stsCode int, q850 int, d
 	}
 	if session.IsBeingEstablished() {
 		session.SetState(state.BeingFailed)
-		session.SendCreatedResponseDetailed(trans, ResponsePack{StatusCode: stsCode, CustomHeaders: NewSHQ850OrSIP(q850, details, "")}, EmptyBody())
+		session.SendCreatedResponseDetailed(trans, ResponsePack{StatusCode: stsCode, CustomHeaders: NewSHQ850OrSIP(q850, details, "")}, NoBody())
 		return true
 	}
 	return false
@@ -819,7 +819,7 @@ func (session *SipSession) Ack3xxTo6xx(finalstate state.SessionState) {
 		return
 	}
 	session.SetState(finalstate)
-	session.SendCreatedRequest(ACK, nil, EmptyBody())
+	session.SendCreatedRequest(ACK, nil, NoBody())
 	session.DropMeTimed()
 }
 
@@ -828,7 +828,7 @@ func (session *SipSession) Ack3xxTo6xxFinalize() {
 		return
 	}
 	session.FinalizeState()
-	session.SendCreatedRequest(ACK, nil, EmptyBody())
+	session.SendCreatedRequest(ACK, nil, NoBody())
 	session.DropMeTimed()
 }
 
