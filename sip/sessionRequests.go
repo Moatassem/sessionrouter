@@ -341,7 +341,7 @@ func (session *SipSession) processRequestHeaders(trans *Transaction, sipmsg *Sip
 
 	// Set msgbody
 	sipmsg.Body = msgbody
-	sipmsg.Body.ParseNPrepareSDP(session)
+	sipmsg.ParseNPrepareSDP(session)
 
 	if sl := sipmsg.StartLine; sl.Method == INVITE {
 		trans.RequestMessage = sipmsg

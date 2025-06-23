@@ -632,7 +632,7 @@ func Keys[T1 comparable, T2 any](m map[T1]T2) []T1 {
 	return rslt
 }
 
-func FirstKey[T1 comparable, T2 any](m map[T1]T2) T1 {
+func OnlyKey[T1 comparable, T2 any](m map[T1]T2) T1 {
 	k, _ := FirstKeyValue(m)
 	return k
 }

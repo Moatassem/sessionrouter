@@ -213,7 +213,7 @@ func processPDU(payload []byte) (*SipMessage, []byte, error) {
 		return nil, nil, errors.New("bad content-length or fragmented pdu")
 	}
 	// ---------------------------------
-	MB := MessageBody{PartsContents: make(map[BodyType]ContentPart)}
+	MB := NewBody()
 
 	var cntntTypeSections map[string]string
 	ok, v := msgmap.ValuesHeader(Content_Type)
@@ -231,7 +231,7 @@ func processPDU(payload []byte) (*SipMessage, []byte, error) {
 	if !strings.Contains(cntntType, "multipart") {
 		bt := GetBodyType(cntntType)
 		if bt == Unknown {
-			LogError(LTBadSIPMessage, "Unknown Content-Type header")
+			LogError(LTBadSIPMessage, "Unknown Content-Type value")
 		} else {
 			MB.PartsContents[bt] = ContentPart{Bytes: payload[_bodyStartIdx : _bodyStartIdx+cntntLength]}
 		}
@@ -268,7 +268,7 @@ func processPDU(payload []byte) (*SipMessage, []byte, error) {
 			case None:
 				LogError(LTBadSIPMessage, "Missing body part Content-Type - skipped")
 			case Unknown:
-				LogError(LTBadSIPMessage, "Unknown Content-Type header - skipped")
+				LogError(LTBadSIPMessage, "Unknown Content-Type value - skipped")
 			default:
 				MB.PartsContents[bt] = ContentPart{
 					Headers: partHeaders,
@@ -283,7 +283,7 @@ func processPDU(payload []byte) (*SipMessage, []byte, error) {
 		}
 	}
 
-	sipmsg.Body = &MB
+	sipmsg.Body = MB
 
 	return sipmsg, payload, nil
 }
@@ -314,12 +314,12 @@ func sessionGetter(sipmsg *SipMessage) (*SipSession, NewSessionType) {
 	case INVITE:
 		sipses.Mymode = mode.Multimedia
 		sipses.IsPRACKSupported = sipmsg.IsOptionSupported("100rel")
-		sipses.IsDelayedOfferCall = !sipmsg.Body.ContainsSDP()
+		sipses.IsDelayedOfferCall = !sipmsg.ContainsSDP()
 		sipses.SetState(state.BeingEstablished)
 		if !sipmsg.IsKnownRURIScheme() {
 			return sipses, UnsupportedURIScheme
 		}
-		if sipmsg.Body.WithUnknownBodyPart() {
+		if sipmsg.WithUnknownBodyPart() {
 			return sipses, UnsupportedBody
 		}
 		if sipmsg.Headers.HeaderExists("Require") {
@@ -399,30 +399,30 @@ func sipStack(sipmsg *SipMessage, ss *SipSession, newSesType NewSessionType) {
 		return
 	case InvalidRequest:
 		ss.SetState(state.BeingFailed)
-		ss.SendCreatedResponse(trans, 503, NoBody())
+		ss.SendCreatedResponse(trans, 503, ZeroBody())
 		ss.DropMe()
 		return
 	case CallLegTransactionNotExist:
 		if sipmsg.StartLine.Method != ACK {
 			ss.SetState(state.Dropped)
-			ss.SendCreatedResponse(trans, 481, NoBody())
+			ss.SendCreatedResponse(trans, 481, ZeroBody())
 		}
 		ss.DropMe()
 		return
 	}
 
 	if sipmsg.IsRequest() {
-		if sipmsg.Body.WithUnknownBodyPart() {
-			ss.SendCreatedResponse(trans, status.UnsupportedMediaType, NoBody())
+		if sipmsg.WithUnknownBodyPart() {
+			ss.SendCreatedResponse(trans, status.UnsupportedMediaType, ZeroBody())
 			return
 		}
 		//nolint:exhaustive
 		switch sipmsg.GetMethod() {
 		case INVITE:
-			ss.SendCreatedResponse(trans, status.Trying, NoBody())
+			ss.SendCreatedResponse(trans, status.Trying, ZeroBody())
 			if sippTesting {
-				ss.SendCreatedResponse(trans, status.Ringing, NoBody())
-				ss.SendCreatedResponse(trans, status.OK, NoBody())
+				ss.SendCreatedResponse(trans, status.Ringing, ZeroBody())
+				ss.SendCreatedResponse(trans, status.OK, ZeroBody())
 				return
 			}
 			if SkipAS {
@@ -431,18 +431,18 @@ func sipStack(sipmsg *SipMessage, ss *SipSession, newSesType NewSessionType) {
 			}
 			ss.RouteRequest(trans, sipmsg)
 		case ReINVITE:
-			ss.SendCreatedResponse(trans, 100, NoBody())
+			ss.SendCreatedResponse(trans, 100, ZeroBody())
 			lnkdss := ss.LinkedSession
 			if !ss.ChecknSetDialogueChanging(true) || (lnkdss != nil && lnkdss.IsDialogueChanging()) {
-				ss.SendCreatedResponseDetailed(trans, NewResponsePackRFWarning(status.RequestPending, "", "Competing ReINVITE rejected"), NoBody())
+				ss.SendCreatedResponseDetailed(trans, NewResponsePackRFWarning(status.RequestPending, "", "Competing ReINVITE rejected"), ZeroBody())
 				return
 			}
 			if lnkdss != nil {
 				if lnkdss.TransformEarlyToFinal {
-					if sipmsg.Body.ContainsSDP() {
+					if sipmsg.ContainsSDP() {
 						lnkdss.SendCreatedRequest(UPDATE, trans, sipmsg.Body)
 					} else {
-						ss.SendCreatedResponse(trans, 488, NoBody())
+						ss.SendCreatedResponse(trans, 488, ZeroBody())
 					}
 					return
 				}
@@ -474,11 +474,11 @@ func sipStack(sipmsg *SipMessage, ss *SipSession, newSesType NewSessionType) {
 			}
 		case CANCEL:
 			if !ss.IsBeingEstablished() {
-				ss.SendCreatedResponseDetailed(trans, ResponsePack{StatusCode: 400, ReasonPhrase: "Incompatible Method With Session State"}, NoBody())
+				ss.SendCreatedResponseDetailed(trans, ResponsePack{StatusCode: 400, ReasonPhrase: "Incompatible Method With Session State"}, ZeroBody())
 				return
 			}
 			ss.SetState(state.BeingCancelled)
-			ss.SendCreatedResponse(trans, 200, NoBody())
+			ss.SendCreatedResponse(trans, 200, ZeroBody())
 			if lnkdss := ss.LinkedSession; lnkdss != nil {
 				lnkdss.StopAllOutTransactions()
 				if lnkdss.ReleaseMe("Caller cleared the call", nil) {
@@ -486,14 +486,14 @@ func sipStack(sipmsg *SipMessage, ss *SipSession, newSesType NewSessionType) {
 				}
 				lnkdss.CancelMe(-1, "")
 			}
-			ss.SendCreatedResponseDetailed(nil, ResponsePack{StatusCode: 487, CustomHeaders: NewSHQ850OrSIP(487, "", "")}, NoBody())
+			ss.SendCreatedResponseDetailed(nil, ResponsePack{StatusCode: 487, CustomHeaders: NewSHQ850OrSIP(487, "", "")}, ZeroBody())
 		case BYE:
 			if !ss.IsEstablished() {
-				ss.SendCreatedResponseDetailed(trans, ResponsePack{StatusCode: 400, ReasonPhrase: "Incompatible Method With Session State"}, NoBody())
+				ss.SendCreatedResponseDetailed(trans, ResponsePack{StatusCode: 400, ReasonPhrase: "Incompatible Method With Session State"}, ZeroBody())
 				return
 			}
 			ss.SetState(state.Cleared)
-			ss.SendCreatedResponse(trans, status.OK, NoBody())
+			ss.SendCreatedResponse(trans, status.OK, ZeroBody())
 			ss.DropMe()
 			if lnkdss := ss.LinkedSession; lnkdss != nil {
 				lnkdss.StopAllOutTransactions()
@@ -505,20 +505,20 @@ func sipStack(sipmsg *SipMessage, ss *SipSession, newSesType NewSessionType) {
 		case OPTIONS:
 			if sipmsg.IsOutOfDialgoue() { // incoming probing
 				ss.SetState(state.Probed)
-				ss.SendCreatedResponse(trans, 200, NoBody())
+				ss.SendCreatedResponse(trans, 200, ZeroBody())
 				ss.DropMe()
 				return
 			}
 			// TODO pass it on or handle locally
-			ss.SendCreatedResponse(trans, 200, NoBody()) // handle in-dialogue locally
+			ss.SendCreatedResponse(trans, 200, ZeroBody()) // handle in-dialogue locally
 		case UPDATE:
-			if sipmsg.Body.WithNoBody() {
-				ss.SendCreatedResponse(trans, 200, NoBody()) // handle in-dialogue locally
+			if sipmsg.WithNoBody() {
+				ss.SendCreatedResponse(trans, 200, ZeroBody()) // handle in-dialogue locally
 				return
 			}
 			lnkdss := ss.LinkedSession
 			if !ss.ChecknSetDialogueChanging(true) || (lnkdss != nil && lnkdss.IsDialogueChanging()) {
-				ss.SendCreatedResponseDetailed(trans, NewResponsePackRFWarning(status.RequestPending, "", "Competing Update rejected"), NoBody())
+				ss.SendCreatedResponseDetailed(trans, NewResponsePackRFWarning(status.RequestPending, "", "Competing Update rejected"), ZeroBody())
 				return
 			}
 			if lnkdss != nil {
@@ -526,22 +526,22 @@ func sipStack(sipmsg *SipMessage, ss *SipSession, newSesType NewSessionType) {
 			}
 		case PRACK:
 			if trans.PrackStatus != PRACKExpected {
-				ss.SendCreatedResponseDetailed(trans, NewResponsePackRFWarning(status.BadRequest, "", "Bad or missing RAck header"), NoBody())
+				ss.SendCreatedResponseDetailed(trans, NewResponsePackRFWarning(status.BadRequest, "", "Bad or missing RAck header"), ZeroBody())
 				return
 			}
-			ss.SendCreatedResponse(trans, status.OK, NoBody())
+			ss.SendCreatedResponse(trans, status.OK, ZeroBody())
 			if lnkdss := ss.LinkedSession; lnkdss != nil {
 				lnkdss.SendCreatedRequest(PRACK, trans.LinkedTransaction, sipmsg.Body)
 			}
 		case REFER:
 			lnkdss := ss.LinkedSession
 			if !ss.IsEstablished() || !lnkdss.IsEstablished() {
-				ss.SendCreatedResponseDetailed(trans, NewResponsePackRFWarning(status.TemporarilyUnavailable, "", "REFER received during early dialogue"), NoBody())
+				ss.SendCreatedResponseDetailed(trans, NewResponsePackRFWarning(status.TemporarilyUnavailable, "", "REFER received during early dialogue"), ZeroBody())
 				return
 			}
 			ss.HandleRefer(trans, sipmsg) // process Refer-To RURI and route the call
 		case NOTIFY:
-			ss.SendCreatedResponse(trans, status.MethodNotAllowed, NoBody())
+			ss.SendCreatedResponse(trans, status.MethodNotAllowed, ZeroBody())
 		case INFO:
 			if lnkdss := ss.LinkedSession; lnkdss != nil {
 				lnkdss.SendCreatedRequest(INFO, trans, sipmsg.Body)
@@ -551,14 +551,14 @@ func sipStack(sipmsg *SipMessage, ss *SipSession, newSesType NewSessionType) {
 			defer ss.DropMe()
 			if expires < 0 {
 				ss.SetState(state.Dropped)
-				ss.SendCreatedResponseDetailed(trans, NewResponsePackRFWarning(400, "", "Bad Contact header"), NoBody())
+				ss.SendCreatedResponseDetailed(trans, NewResponsePackRFWarning(400, "", "Bad Contact header"), ZeroBody())
 				return
 			}
 			ss.SetState(phone.Phones.AddOrUpdate(ext, ruri, ipport, expires))
-			ss.SendCreatedResponseDetailed(trans, ResponsePack{StatusCode: 200, ContactHeader: contact}, NoBody())
+			ss.SendCreatedResponseDetailed(trans, ResponsePack{StatusCode: 200, ContactHeader: contact}, ZeroBody())
 		default: // SUBSCRIBE, MESSAGE, PUBLISH, NEGOTIATE
 			ss.SetState(state.Dropped)
-			ss.SendCreatedResponse(trans, status.MethodNotAllowed, NoBody())
+			ss.SendCreatedResponse(trans, status.MethodNotAllowed, ZeroBody())
 			ss.DropMe()
 		}
 	} else {
@@ -574,14 +574,14 @@ func sipStack(sipmsg *SipMessage, ss *SipSession, newSesType NewSessionType) {
 				}
 				ss.StopTimer(No18x)
 				if ss.TransformEarlyToFinal {
-					if sipmsg.Body.ContainsSDP() {
+					if sipmsg.ContainsSDP() {
 						if !ss.IsReceived18xSDP() {
 							ss.SetReceived18xSDP()
 							lnkdss.SendCreatedResponse(nil, 200, sipmsg.Body)
 						}
 					} else {
 						if !ss.IsReceived18xSDP() {
-							lnkdss.SendCreatedResponse(nil, stsCode, NoBody())
+							lnkdss.SendCreatedResponse(nil, stsCode, ZeroBody())
 						}
 					}
 					return
@@ -603,9 +603,9 @@ func sipStack(sipmsg *SipMessage, ss *SipSession, newSesType NewSessionType) {
 				case INVITE:
 					if !ss.IsBeingEstablished() {
 						ss.StopAllOutTransactions()
-						ss.SendCreatedRequest(ACK, nil, NoBody())
+						ss.SendCreatedRequest(ACK, nil, ZeroBody())
 						ss.WaitMS(100)
-						ss.SendCreatedRequestDetailed(RequestPack{Method: BYE, CustomHeaders: NewSHQ850OrSIP(487, "Call cancelled already", "")}, nil, NoBody())
+						ss.SendCreatedRequestDetailed(RequestPack{Method: BYE, CustomHeaders: NewSHQ850OrSIP(487, "Call cancelled already", "")}, nil, ZeroBody())
 						return
 					}
 					ss.StopNoTimers()
@@ -613,7 +613,7 @@ func sipStack(sipmsg *SipMessage, ss *SipSession, newSesType NewSessionType) {
 						ss.TransformEarlyToFinal = false
 						if ss.IsReceived18xSDP() {
 							ss.FinalizeState()
-							ss.SendCreatedRequest(ACK, nil, NoBody())
+							ss.SendCreatedRequest(ACK, nil, ZeroBody())
 							return
 						}
 					}
