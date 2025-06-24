@@ -40,7 +40,7 @@ func StartWS() {
 }
 
 func serveHome(w http.ResponseWriter, _ *http.Request) {
-	_, _ = w.Write(fmt.Appendf(nil, "<h1>%s API Webserver</h1>\n", B2BUAName))
+	_, _ = w.Write(fmt.Appendf(nil, "<h1>%s API Webserver</h1>\n", B2BUANameVersion))
 }
 
 func serveSession(w http.ResponseWriter, _ *http.Request) {
@@ -115,5 +115,5 @@ func serveConfig(w http.ResponseWriter, _ *http.Request) {
 
 func refreshConfig(w http.ResponseWriter, _ *http.Request) {
 	sip.RoutingEngineDB.ReloadConfig()
-	_, _ = w.Write(fmt.Appendf(nil, "<h1>%s API Webserver - Config reloaded successfully</h1>\n", B2BUAName))
+	_, _ = w.Write(fmt.Appendf(nil, "<h1>%s API Webserver - Config reloaded successfully</h1>\n", B2BUANameVersion))
 }

@@ -463,7 +463,7 @@ func (sipmsg *SipMessage) ParseNPrepareSDP(ss *SipSession) {
 		return
 	}
 
-	sdpSession.Name = B2BUAName
+	sdpSession.Name = B2BUANameVersion
 
 	if ss.RoutingData != nil && ss.RoutingData.SteerMedia && ss.MediaConn != nil {
 		if lnkdss := ss.LinkedSession; lnkdss != nil {

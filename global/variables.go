@@ -9,8 +9,9 @@ import (
 )
 
 const (
-	EntityName = "MT-Tools"
-	B2BUAName  = "SRGo/1.7.1"
+	EntityName       = "MT-Tools"
+	B2BUAName        = "SRGo"
+	B2BUANameVersion = "SRGo/1.7.1"
 
 	RTPHeaderSize  int = 12
 	RTPPayloadSize int = 160

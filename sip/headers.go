@@ -27,8 +27,8 @@ func NewSHsFromMap(mp map[string][]string) SipHeaders {
 func NewSHsPointer(setDefaults bool) *SipHeaders {
 	headers := NewSipHeaders()
 	if setDefaults {
-		headers.AddHeader(User_Agent, B2BUAName)
-		headers.AddHeader(Server, B2BUAName)
+		headers.AddHeader(User_Agent, B2BUANameVersion)
+		headers.AddHeader(Server, B2BUANameVersion)
 		// headers.AddHeader(Allow, AllowedMethods)
 	}
 	return &headers
@@ -41,7 +41,7 @@ func NewSHQ850OrSIP(q850OrSip int, details string, retryAfter string) SipHeaders
 	}
 	if q850OrSip == 0 {
 		if strings.TrimSpace(details) != "" {
-			headers.AddHeader(Warning, fmt.Sprintf("399 SRGo \"%s\"", details))
+			headers.AddHeader(Warning, fmt.Sprintf("399 %s \"%s\"", B2BUAName, details))
 		}
 	} else {
 		var reason string

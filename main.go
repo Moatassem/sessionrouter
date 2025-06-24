@@ -27,7 +27,7 @@ const (
 func main() {
 	greeting()
 
-	global.Prometrics = prometheus.NewMetrics(global.B2BUAName)
+	global.Prometrics = prometheus.NewMetrics(global.B2BUANameVersion)
 	conn := sip.StartServer(checkArgs())
 
 	defer conn.Close() // close SIP server connection
@@ -37,7 +37,7 @@ func main() {
 }
 
 func greeting() {
-	global.LogInfo(global.LTSystem, fmt.Sprintf("Welcome to %s - Product of %s 2025", global.B2BUAName, global.ASCIIPascal(global.EntityName)))
+	global.LogInfo(global.LTSystem, fmt.Sprintf("Welcome to %s - Product of %s 2025", global.B2BUANameVersion, global.ASCIIPascal(global.EntityName)))
 }
 
 func checkArgs() (*global.UdpSocket, string, int, int, int, int, string) {

@@ -43,7 +43,7 @@ Environment variables must be defined in order to launch SR container.
 
 ## Local Routing DB
 
-You can use "rdb.json" locally to setup Local Routing DB
+Use "rdb.json" file to setup internal Routing DB. Example below.
 
 ```json
 [
@@ -110,6 +110,8 @@ You can use "rdb.json" locally to setup Local Routing DB
   Refresh server in-memory DB from the local rdb.json file
 - `GET /metrics`
   Get server Prometheus scraping & observability
+- `GET /`
+  Get server test webpage
 
 ## Special Headers
 
