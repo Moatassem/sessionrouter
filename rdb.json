@@ -42,6 +42,8 @@
             "outRuriUserpart": "12388",
             "outRuriHostport": "somewhere:5097",
             "outCallFlow": "Transparent",
+            "disallowSimilar18x": true,
+            "disallowDifferent18x": false,
             "steerMedia": true
         }
     }

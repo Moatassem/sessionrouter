@@ -24,6 +24,9 @@ type (
 		No18xTimeout    int `json:"no18xTimeout"`
 		MaxCallDuration int `json:"maxCallDuration"`
 
+		DisallowDifferent18x bool `json:"disallowDifferent18x"` // for 18x responses, if false, multiple different 18x responses can be sent
+		DisallowSimilar18x   bool `json:"disallowSimilar18x"`   // for 18x responses, if false, multiple similar 18x responses can be sent
+
 		SteerMedia bool `json:"steerMedia"`
 
 		OutRuriUserpart string `json:"outRuriUserpart"`

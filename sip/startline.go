@@ -61,9 +61,6 @@ type ResponsePack struct {
 	ReasonPhrase  string
 	ContactHeader string
 
-	AllowDifferent18x bool // for 18x responses, if true, multiple different 18x responses can be sent
-	AllowSimilar18x   bool // for 18x responses, if true, multiple similar 18x responses can be sent
-
 	CustomHeaders SipHeaders
 
 	LinkedPRACKST  *Transaction

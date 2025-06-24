@@ -586,7 +586,7 @@ func sipStack(sipmsg *SipMessage, ss *SipSession, newSesType NewSessionType) {
 					}
 					return
 				}
-				rspspk := ResponsePack{StatusCode: stsCode, AllowDifferent18x: true, AllowSimilar18x: false}
+				rspspk := ResponsePack{StatusCode: stsCode}
 				if sipmsg.IsOptionRequired("100rel") {
 					rspspk.LinkedPRACKST = ss.GenerateOutgoingPRACKST(sipmsg)
 				}
