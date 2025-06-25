@@ -12,7 +12,7 @@ import (
 	"SRGo/sip/status"
 )
 
-func (ss1 *SipSession) RouteRequest(trans1 *Transaction, sipmsg1 *SipMessage) {
+func (ss1 *SipSession) RouteRequestExternal(trans1 *Transaction, sipmsg1 *SipMessage) {
 	defer LogCallStack()
 
 	if ss1.RoutingData == nil { // first invocation
@@ -58,7 +58,6 @@ func (ss1 *SipSession) RouteRequest(trans1 *Transaction, sipmsg1 *SipMessage) {
 	// }
 
 	ss2 := NewSS(OUTBOUND)
-	// ss2.RemoteUDP = ss1.RemoteUDP
 	ss2.SetRemoteUDP(rd.RemoteUDPSocket.UDPAddr())
 	ss2.SetUDPListenser(ss1.UDPListenser())
 	ss2.RoutingData = rd

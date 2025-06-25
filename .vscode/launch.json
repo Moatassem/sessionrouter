@@ -5,7 +5,7 @@
   "version": "0.2.0",
   "configurations": [
     {
-      "name": "Launch",
+      "name": "Debug",
       "type": "go",
       "request": "launch", //"attach",
       "mode": "debug",

@@ -429,7 +429,7 @@ func sipStack(sipmsg *SipMessage, ss *SipSession, newSesType NewSessionType) {
 				ss.RouteRequestInternal(trans, sipmsg) // use internal AS
 				return
 			}
-			ss.RouteRequest(trans, sipmsg)
+			ss.RouteRequestExternal(trans, sipmsg) // use external AS
 		case ReINVITE:
 			ss.SendCreatedResponse(trans, 100, ZeroBody())
 			lnkdss := ss.LinkedSession
