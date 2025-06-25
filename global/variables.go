@@ -19,6 +19,8 @@ const (
 	MediaStartPort int = 7000
 	MediaEndPort   int = 57000
 
+	ntpEpochOffset uint64 = 2208988800
+
 	CdrBufferSize = 512
 	PduBufferSize = 4096
 

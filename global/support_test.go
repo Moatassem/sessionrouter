@@ -2,6 +2,7 @@ package global_test
 
 import (
 	"SRGo/global"
+	"fmt"
 	"reflect"
 	"sync"
 	"testing"
@@ -174,7 +175,9 @@ func TestBuildUdpAddr2(t *testing.T) {
 // }
 
 func BenchmarkSyncPool(b *testing.B) {
-	b.ReportAllocs()
+	// b.ReportAllocs()
+
+	fmt.Println(global.GetNTPTimestamp())
 
 	// Pointer version (efficient, no allocations)
 	b.Run("With Pointers", func(b *testing.B) {

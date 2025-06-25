@@ -16,6 +16,7 @@ import (
 	"runtime"
 	"slices"
 	"strings"
+	"time"
 	"unicode/utf8"
 )
 
@@ -29,6 +30,13 @@ func LogCallStack() {
 	buf := make([]byte, 1024)
 	n := runtime.Stack(buf, false)
 	log.Printf("Stack trace:\n%s\n", buf[:n])
+}
+
+// GetNTPTimestamp returns the current time as a 64-bit NTP timestamp
+func GetNTPTimestamp() uint64 {
+	now := time.Now().UTC()
+	secs := uint64(now.Unix()) + ntpEpochOffset
+	return secs << 32
 }
 
 func GetAbsolutePath(relativePath string) (string, error) {
