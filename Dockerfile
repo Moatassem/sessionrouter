@@ -1,4 +1,4 @@
-FROM golang:1.24.3-alpine AS build
+FROM golang:1.24.4-alpine3.22 AS build
 
 WORKDIR /sessionrouter
 
@@ -9,7 +9,7 @@ RUN go mod verify
 COPY . .
 RUN go build -o srgo .
 
-FROM alpine:3.21.3 AS run
+FROM alpine:3.22 AS run
 
 RUN mkdir /sessionrouter
 
