@@ -76,9 +76,9 @@ type SipSession struct {
 	no18xSTimer   *time.Timer
 	noAnsSTimer   *time.Timer
 
-	maxDurationTimer *time.Timer  // used on inbound sessions only
-	probingTicker    *time.Ticker // used on inbound sessions only
-	probDoneChan     chan any     // used to send kill signal to probingTicker handler
+	maxDurationTimer *time.Timer   // used on inbound sessions only
+	probingTicker    *time.Ticker  // used on inbound sessions only
+	probDoneChan     chan struct{} // used to send kill signal to probingTicker handler
 
 	Transactions []*Transaction
 	TransLock    sync.RWMutex
@@ -87,7 +87,7 @@ type SipSession struct {
 func NewSS(dir Direction) *SipSession {
 	ss := &SipSession{
 		Direction:    dir,
-		probDoneChan: make(chan any),
+		probDoneChan: make(chan struct{}),
 	}
 	return ss
 }
@@ -677,7 +677,7 @@ func (ss *SipSession) StartMaxCallDuration() {
 	ss.maxDurationTimer = time.AfterFunc(time.Duration(mxD)*time.Second, func() { ss.ReleaseCall("Max call duration reached") })
 }
 
-func (ss *SipSession) probingTickerHandler(doneChan chan any, tkChan <-chan time.Time) {
+func (ss *SipSession) probingTickerHandler(doneChan chan struct{}, tkChan <-chan time.Time) {
 	for {
 		select {
 		case <-doneChan:
