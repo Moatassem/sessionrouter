@@ -8,7 +8,7 @@
 
 ## Launching the build
 
-Construction is automatic via Git CI/CD pipeline
+- Building and launching the software using existing Dockerfile
 
 ## Service Details
 
@@ -57,7 +57,10 @@ Use "rdb.json" file to setup internal Routing DB. Example below.
       "maxCallDuration": -1,
       "outRuriUserpart": "+2385801$1",
       "outRuriHostport": "",
-      "outCallFlow": "TransformEarlyToFinal"
+      "outCallFlow": "TransformEarlyToFinal",
+      "disallowSimilar18x": false,
+      "disallowDifferent18x": false,
+      "steerMedia": false
     }
   },
   {
@@ -69,7 +72,9 @@ Use "rdb.json" file to setup internal Routing DB. Example below.
       "outRuriUserpart": "$1",
       "outRuriHostport": "192.168.1.2:5098",
       "outCallFlow": "Transparent",
-      "steerMedia": true
+      "disallowSimilar18x": false,
+      "disallowDifferent18x": false,
+      "steerMedia": false
     }
   },
   {
@@ -80,7 +85,10 @@ Use "rdb.json" file to setup internal Routing DB. Example below.
       "maxCallDuration": -1,
       "outRuriUserpart": "$1",
       "outRuriHostport": "192.168.1.2:5099",
-      "outCallFlow": "TransformEarlyToFinal"
+      "outCallFlow": "TransformEarlyToFinal",
+      "disallowSimilar18x": false,
+      "disallowDifferent18x": false,
+      "steerMedia": false
     }
   },
   {
@@ -92,6 +100,8 @@ Use "rdb.json" file to setup internal Routing DB. Example below.
       "outRuriUserpart": "12388",
       "outRuriHostport": "somewhere:5097",
       "outCallFlow": "Transparent",
+      "disallowSimilar18x": true,
+      "disallowDifferent18x": false,
       "steerMedia": true
     }
   }
