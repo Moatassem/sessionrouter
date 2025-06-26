@@ -1,3 +1,5 @@
+![SRGo](./webserver/sipgopher.png)
+
 # Session Router v1.7.1 - written from scratch in Golang
 
 - Highly optimized, high performance, modular, carrier-grade B2BUA with capacity **exceeding 2500 CAPS** and **1.5 Million concurrent sessions**
