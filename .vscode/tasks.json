@@ -1,0 +1,20 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Run Go Program",
+      "type": "shell",
+      "command": "go run .",
+      "options": {
+        "env": {
+          // "as_sip_udp": "192.168.1.2:5060",
+          "server_ipv4": "192.168.1.2",
+          "sip_udp_port": "5060",
+          "http_port": "8080",
+          "ka_interval": "20"
+        }
+      },
+      "problemMatcher": []
+    }
+  ]
+}
