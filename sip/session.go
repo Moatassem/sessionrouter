@@ -849,7 +849,6 @@ func (session *SipSession) DropMe() {
 		}
 		return
 	}
-	// fmt.Println("Session:", session.CallID, "State:", session.state.String())
 	close(session.probDoneChan)
 	if session.maxDurationTimer != nil {
 		session.maxDurationTimer.Stop()

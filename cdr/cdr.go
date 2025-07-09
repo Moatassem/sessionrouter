@@ -16,6 +16,7 @@ var (
 const CDRFilename string = "cdrs_current.txt"
 
 func init() {
+	global.WtGrp.Add(1)
 	pipe = make(chan map[Field]string, global.CdrBufferSize)
 	if file, ok := prepareCdrFiles(); ok {
 		go writeCDRs(file)
@@ -42,7 +43,9 @@ func prepareCdrFiles() (*os.File, bool) {
 }
 
 func writeCDRs(file *os.File) {
+	defer global.WtGrp.Done()
 	defer file.Close()
+	defer file.Sync()
 	defer close(pipe)
 
 	writeLine := func(line string) {
