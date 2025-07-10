@@ -159,7 +159,7 @@ routeCall:
 	rd := ss1.RoutingData
 
 	if rd.SteerMedia {
-		ss1.MediaConn = MediaEngine.ReserveSocket()
+		ss1.MediaConn = MediaPortPool.ReserveSocket()
 		if ss1.MediaConn == nil {
 			ss1.RejectMe(trans1, status.ServiceUnavailable, q850.ResourceUnavailableUnspecified, "No media port available for ingress")
 			return
@@ -181,7 +181,7 @@ routeCall:
 	ss1.LinkedSession = ss2
 
 	if rd.SteerMedia {
-		ss2.MediaConn = MediaEngine.ReserveSocket()
+		ss2.MediaConn = MediaPortPool.ReserveSocket()
 		if ss2.MediaConn == nil {
 			ss2.DropMe()
 			ss1.RejectMe(trans1, status.ServiceUnavailable, q850.ResourceUnavailableUnspecified, "No media port available for egress")
@@ -371,7 +371,7 @@ func (ss *SipSession) answerEchoCall(trans *Transaction, sipmsg *SipMessage) {
 		return
 	}
 
-	if ss.MediaConn = MediaEngine.ReserveSocket(); ss.MediaConn == nil {
+	if ss.MediaConn = MediaPortPool.ReserveSocket(); ss.MediaConn == nil {
 		ss.RejectMe(trans, status.ServiceUnavailable, q850.ResourceUnavailableUnspecified, "No media port available for ingress")
 		return
 	}

@@ -856,7 +856,7 @@ func (session *SipSession) DropMe() {
 	if session.probingTicker != nil {
 		session.probingTicker.Stop()
 	}
-	MediaEngine.ReleaseSocket(session.MediaConn)
+	MediaPortPool.ReleaseSocket(session.MediaConn)
 
 	// Create CDR
 	// sesCDR := cdr.New()

@@ -53,7 +53,7 @@ func StartServer(asUdpskt *UdpSocket, ipv4 string, sup, kai, htp, indint int, up
 	ASUserAgent = NewSipUdpUserAgentFromSocket(asUdpskt)
 
 	InitializeEngine()
-	MediaEngine = NewMediaPortPool()
+	MediaPortPool = NewMediaPortPool()
 
 	fmt.Println("Ready!")
 
