@@ -576,7 +576,7 @@ func (ss *SipSession) SetReceived18xSDP() {
 	ss.received18xSDP = true
 }
 
-func (ss *SipSession) IsReceived18xSDP() bool {
+func (ss *SipSession) Received18xSDP() bool {
 	ss.dscmutex.RLock()
 	defer ss.dscmutex.RUnlock()
 

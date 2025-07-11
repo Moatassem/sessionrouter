@@ -598,12 +598,12 @@ func sipStack(sipmsg *SipMessage, ss *SipSession, newSesType NewSessionType) {
 				ss.StopTimer(No18x)
 				if ss.TransformEarlyToFinal {
 					if sipmsg.ContainsSDP() {
-						if !ss.IsReceived18xSDP() {
+						if !ss.Received18xSDP() {
 							ss.SetReceived18xSDP()
 							lnkdss.SendCreatedResponse(nil, 200, sipmsg.Body)
 						}
 					} else {
-						if !ss.IsReceived18xSDP() {
+						if !ss.Received18xSDP() {
 							lnkdss.SendCreatedResponse(nil, stsCode, ZeroBody())
 						}
 					}
@@ -634,7 +634,7 @@ func sipStack(sipmsg *SipMessage, ss *SipSession, newSesType NewSessionType) {
 					ss.StopNoTimers()
 					if ss.TransformEarlyToFinal {
 						ss.TransformEarlyToFinal = false
-						if ss.IsReceived18xSDP() {
+						if ss.Received18xSDP() {
 							ss.FinalizeState()
 							ss.SendCreatedRequest(ACK, nil, ZeroBody())
 							return
