@@ -44,15 +44,17 @@ const (
 var (
 	SipUdpPort  int // TODO add a list of listening UDP ports if needed later, for now, it is a single port
 	HttpTcpPort int
-	RateLimit   = -1 // TODO 2000 || 0 = switched off, -1 = unlimited, > 0 = limited
+
+	RateLimit = -1 // TODO 2000 || 0 = switched off, -1 = unlimited, > 0 = limited
 
 	BufferPool      *sync.Pool
 	RTPRXBufferPool *sync.Pool
 	RTPBuffer       *sync.Pool
 	RTPTXBufferPool *sync.Pool
-	Prometrics      *prometheus.Metrics
-	CallLimiter     *cl.CallLimiter
-	WtGrp           sync.WaitGroup
+
+	Prometrics  *prometheus.Metrics
+	CallLimiter *cl.CallLimiter
+	WtGrp       sync.WaitGroup
 )
 
 var (
