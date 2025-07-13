@@ -125,7 +125,7 @@ Use "rdb.json" file to setup internal Routing DB. Example below.
 ## Existing API calls:
 
 - `GET /api/v1/stats`
-  Get general stats of the server
+  Get general stats of session router server
 - `GET /api/v1/phone`
   Get server in-memory endpoint Phones
 - `GET /api/v1/session`
