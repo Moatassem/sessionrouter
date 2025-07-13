@@ -94,7 +94,7 @@ func (re *RoutingEngine) ReadConfig(data []byte) {
 		re.routings = append(re.routings, &r.RD)
 	}
 
-	fmt.Printf("Routing DB loaded - Total Records: %d, Valid Records: %d\n", total, len(re.routings))
+	fmt.Printf("Done! >> Total Records: %d, Valid Records: %d\n", total, len(re.routings))
 }
 
 func (re *RoutingEngine) Get(userpart string) (*RoutingRecord, string) {
