@@ -4,7 +4,7 @@
 
 - Highly optimized, high performance, modular, carrier-grade B2BUA with capacity **exceeding 2500 CAPS** and **1.5 Million concurrent sessions**
 - Full SIP Headers and Body Manipulation with Stateful HMRs
-- Docker-containerized compiled with golang:alpine
+- Docker-containerized image compiled with golang:alpine
 
 ## Launching the build
 
