@@ -26,6 +26,7 @@ var (
 )
 
 func readJsonFile() []byte {
+	fmt.Print("Locating Routing DB...")
 	exePath, err := os.Executable()
 	if err != nil {
 		fmt.Println("Error getting executable path:", err)
@@ -40,6 +41,8 @@ func readJsonFile() []byte {
 		fmt.Println("Error reading JSON file:", err)
 		return nil
 	}
+
+	fmt.Println("Found:", jsonPath)
 
 	return data
 }
