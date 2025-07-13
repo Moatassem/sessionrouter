@@ -215,7 +215,7 @@ func processPDU(payload []byte) (*SipMessage, []byte, error) {
 		return nil, nil, errors.New("bad content-length or fragmented pdu")
 	}
 	// ---------------------------------
-	MB := NewBody(nil)
+	MB := NewBody()
 
 	var cntntTypeSections map[string]string
 	ok, v := msgmap.ValuesHeader(Content_Type)

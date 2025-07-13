@@ -16,8 +16,8 @@ type ContentPart struct {
 	Bytes   []byte
 }
 
-func NewBody(sdpses *sdp.Session) *MessageBody {
-	return &MessageBody{PartsContents: make(map[BodyType]ContentPart), SdpSession: sdpses}
+func NewBody() *MessageBody {
+	return &MessageBody{PartsContents: make(map[BodyType]ContentPart)}
 }
 
 func ZeroBody() *MessageBody {

@@ -300,27 +300,7 @@ func (ss *SipSession) HandleNSteerMediaWithPool() {
 		}()
 	}
 }
-func (ss *SipSession) HandleNSteerMediaWithPool2() {
-	if ss.MediaConn == nil {
-		return
-	}
 
-	for {
-		buf, _ := RTPBuffer.Get().([]byte)
-		n, _, err := ss.MediaConn.ReadFromUDP(buf)
-		if err != nil {
-			RTPBuffer.Put(buf)
-			break
-		}
-		go func() {
-			lnkdss := ss.LinkedSession
-			if lnkdss != nil && lnkdss.MediaConn != nil {
-				lnkdss.MediaConn.WriteToUDP(buf[:n], lnkdss.remoteMediaUdpAddr) // data race but not critical
-			}
-			RTPBuffer.Put(buf)
-		}()
-	}
-}
 func (ss *SipSession) HandleNSteerMedia() {
 	if ss.MediaConn == nil {
 		return
@@ -390,7 +370,10 @@ func (ss *SipSession) answerEchoCall(trans *Transaction, sipmsg *SipMessage) {
 		return
 	}
 
-	ss.SendCreatedResponse(trans, 200, NewBody(sdp2))
+	msgbody := sipmsg.Body
+	msgbody.SdpSession = sdp2
+
+	ss.SendCreatedResponse(trans, 200, msgbody)
 	ss.isHeld = sdp1.IsCallHeld()
 
 	go ss.HandleEchoResponderMedia()
