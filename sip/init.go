@@ -13,6 +13,19 @@ import (
 	"SRGo/phone"
 )
 
+type (
+	DscpValue = int
+)
+
+const (
+	// Choose DSCP values (shift left by 2 bits for TOS field)
+	DscpCS3  DscpValue = 24 << 2 // SIP
+	DscpCS5  DscpValue = 40 << 2 // SIP
+	DscpAF31 DscpValue = 26 << 2 // SIP
+	DscpAF41 DscpValue = 34 << 2 // SIP
+	DscpEF   DscpValue = 46 << 2 // RTP
+)
+
 var (
 	Sessions                  ConcurrentMapMutex[*SipSession]
 	ASUserAgent               *SipUdpUserAgent
@@ -98,7 +111,7 @@ func StartServer(asUdpskt *UdpSocket, ipv4 string, sup, kai, htp, indint int, up
 	}
 
 	fmt.Print("Attempting to listen on SIP...")
-	serverUDPListener, err := StartListening(ServerIPv4, SipUdpPort)
+	serverUDPListener, err := StartListening(ServerIPv4, SipUdpPort, DscpAF41)
 	if err != nil {
 		fmt.Println(err)
 		os.Exit(2)

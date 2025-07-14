@@ -18,6 +18,8 @@ import (
 	"strings"
 	"time"
 	"unicode/utf8"
+
+	"golang.org/x/net/ipv4"
 )
 
 // ============================================================
@@ -73,11 +75,24 @@ outer:
 	return IPs, nil
 }
 
-func StartListening(ip net.IP, prt int) (*net.UDPConn, error) {
+func StartListening(ip net.IP, prt int, dscp int) (*net.UDPConn, error) {
+	if ip == nil {
+		return nil, errors.New("nil IP address")
+	}
 	var socket net.UDPAddr
 	socket.IP = ip
 	socket.Port = prt
-	return net.ListenUDP("udp", &socket)
+	conn, err := net.ListenUDP("udp", &socket)
+
+	if err != nil {
+		return nil, err
+	}
+
+	if err = ipv4.NewConn(conn).SetTOS(dscp); err != nil {
+		log.Printf("Failed to set IPv4 TOS: %v (may need CAP_NET_ADMIN)", err)
+	}
+
+	return conn, nil
 }
 
 func GetUDPAddrFromConn(conn *net.UDPConn) *net.UDPAddr {

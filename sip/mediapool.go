@@ -29,7 +29,7 @@ func (mpp *MediaPool) ReserveSocket() *net.UDPConn {
 	defer mpp.mu.Unlock()
 	for port, used := range mpp.alloc {
 		if !used {
-			socket, err := global.StartListening(ServerIPv4, port)
+			socket, err := global.StartListening(ServerIPv4, port, DscpEF)
 			if err != nil {
 				continue
 			}
