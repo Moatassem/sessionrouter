@@ -294,7 +294,9 @@ func (ss *SipSession) HandleNSteerMediaWithPool() {
 		go func() {
 			lnkdss := ss.LinkedSession
 			if lnkdss != nil && lnkdss.MediaConn != nil {
-				lnkdss.MediaConn.WriteToUDP((*buf)[:n], lnkdss.remoteMediaUdpAddr) // data race but not critical
+				if remoteAddr := lnkdss.RemoteMediaUdpAddr(); remoteAddr != nil {
+					lnkdss.MediaConn.WriteToUDP((*buf)[:n], remoteAddr) // data race but not critical
+				}
 			}
 			RTPRXBufferPool.Put(buf)
 		}()
@@ -313,7 +315,9 @@ func (ss *SipSession) HandleNSteerMedia() {
 		}
 		lnkdss := ss.LinkedSession
 		if lnkdss != nil && lnkdss.MediaConn != nil {
-			lnkdss.MediaConn.WriteToUDP(buf[:n], lnkdss.remoteMediaUdpAddr) // data race but not critical
+			if remoteAddr := lnkdss.RemoteMediaUdpAddr(); remoteAddr != nil {
+				lnkdss.MediaConn.WriteToUDP(buf[:n], remoteAddr)
+			}
 		}
 	}
 }

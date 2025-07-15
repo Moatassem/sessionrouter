@@ -69,7 +69,7 @@ func (re *RoutingEngine) ReadConfig(data []byte) {
 
 	re.routings = make([]*RoutingRecord, 0, total)
 
-	fmt.Println("Loading Routing DB...")
+	fmt.Print("Loading Routing DB...")
 	for _, r := range rdp {
 		if r.RD.OutCallFlow != EchoResponder && r.RD.No18xTimeout <= 0 && r.RD.NoAnswerTimeout <= 0 {
 			fmt.Println("Both No18xTimeout and NoAnswerTimeout are disabled - Skipped")
@@ -94,7 +94,7 @@ func (re *RoutingEngine) ReadConfig(data []byte) {
 		re.routings = append(re.routings, &r.RD)
 	}
 
-	fmt.Printf("Done! >> Total Records: %d, Valid Records: %d\n", total, len(re.routings))
+	fmt.Printf("Done: Total Records: %d, Valid Records: %d\n", total, len(re.routings))
 }
 
 func (re *RoutingEngine) Get(userpart string) (*RoutingRecord, string) {

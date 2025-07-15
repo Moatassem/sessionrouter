@@ -62,7 +62,7 @@ func readJsonFile() []byte {
 }
 
 func StartServer(asUdpskt *UdpSocket, ipv4 string, sup, kai, htp, indint int, uproxy string) *net.UDPConn {
-	fmt.Print("Initializing Global Variables...")
+	fmt.Print("Initializing System...")
 
 	Sessions = NewConcurrentMapMutex[*SipSession](QueueSize)
 
@@ -72,7 +72,7 @@ func StartServer(asUdpskt *UdpSocket, ipv4 string, sup, kai, htp, indint int, up
 	InitializeEngine()
 	MediaPortPool = NewMediaPortPool()
 
-	fmt.Println("Ready!")
+	fmt.Println("Done")
 
 	if SkipAS {
 		RoutingEngineDB = NewRoutingEngine()
@@ -120,14 +120,26 @@ func StartServer(asUdpskt *UdpSocket, ipv4 string, sup, kai, htp, indint int, up
 	udpLoopWorkers(serverUDPListener)
 	fmt.Println("Success: UDP", serverUDPListener.LocalAddr().String())
 
-	// starting probing loop
+	fmt.Print("Starting SIP Probing...")
 	go periodicUAProbing(serverUDPListener)
+	fmt.Println("Done")
 
 	fmt.Print("Setting Rate Limiter...")
 	CallLimiter = cl.NewCallLimiter(RateLimit, Prometrics, &WtGrp)
-	fmt.Printf("OK (%d)\n", RateLimit)
+	fmt.Println("Done:", ratelimitStringer())
 
 	return serverUDPListener
+}
+
+func ratelimitStringer() string {
+	switch RateLimit {
+	case -1:
+		return "Unlimited CAPS"
+	case 0:
+		return "No Calls Allowed!"
+	default:
+		return fmt.Sprintf("%d CAPS", RateLimit)
+	}
 }
 
 func periodicUAProbing(conn *net.UDPConn) {

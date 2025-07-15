@@ -5,6 +5,7 @@ import (
 	"net"
 	"runtime"
 	"sync"
+	"sync/atomic"
 	"time"
 
 	. "SRGo/global"
@@ -58,7 +59,7 @@ type SipSession struct {
 	EgressProxy *net.UDPAddr
 
 	MediaConn          *net.UDPConn
-	remoteMediaUdpAddr *net.UDPAddr
+	remoteMediaUdpAddr atomic.Value // *net.UDPAddr
 
 	udpListenser    *net.UDPConn
 	RemoteUserAgent *SipUdpUserAgent
@@ -113,19 +114,14 @@ func (session *SipSession) ExceedCondition() bool {
 //============================================================
 
 func (session *SipSession) RemoteMediaUdpAddr() *net.UDPAddr {
-	session.rmtmutex.RLock()
-	defer session.rmtmutex.RUnlock()
-
-	return session.remoteMediaUdpAddr
+	return session.remoteMediaUdpAddr.Load().(*net.UDPAddr)
 }
 
 func (session *SipSession) SetRemoteMediaUdpAddr(rmt *net.UDPAddr) {
-	session.rmtmutex.Lock()
-	defer session.rmtmutex.Unlock()
-
-	if session.remoteMediaUdpAddr == nil || !AreUdpAddrsEqual(session.remoteMediaUdpAddr, rmt) {
-		session.remoteMediaUdpAddr = rmt
+	if rmt == nil {
+		return
 	}
+	session.remoteMediaUdpAddr.Store(rmt)
 }
 
 func (session *SipSession) SetRemoteUDPnListenser(rmt *net.UDPAddr, cn *net.UDPConn) {

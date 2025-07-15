@@ -37,6 +37,8 @@ func StartWS() {
 	fmt.Println("Success: HTTP", ws)
 
 	fmt.Printf("Prometheus metrics available at http://%s/metrics\n", ws)
+
+	fmt.Println("SRGo is ready to serve!")
 }
 
 func serveHome(w http.ResponseWriter, _ *http.Request) {
