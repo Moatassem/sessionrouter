@@ -1,0 +1,64 @@
+[
+    {
+        "userpartPattern": "^777(8157\\d+)",
+        "routingRecord": {
+            "noAnswerTimeout": -1,
+            "no18xTimeout": 7,
+            "maxCallDuration": -1,
+            "outRuriUserpart": "+2385801$1",
+            "outRuriHostport": "",
+            "outCallFlow": "TransformEarlyToFinal"
+        }
+    },
+    {
+        "userpartPattern": "^(12355)$",
+        "routingRecord": {
+            "noAnswerTimeout": 5,
+            "no18xTimeout": 7,
+            "maxCallDuration": -1,
+            "outRuriUserpart": "$1",
+            "outRuriHostport": "192.168.8.4:5098",
+            "outCallFlow": "Transparent",
+            "steerMedia": true
+        }
+    },
+    {
+        "userpartPattern": "^(12389)$",
+        "routingRecord": {
+            "noAnswerTimeout": -1,
+            "no18xTimeout": 7,
+            "maxCallDuration": -1,
+            "outRuriUserpart": "$1",
+            "outRuriHostport": "192.168.1.2:5099",
+            "outCallFlow": "TransformEarlyToFinal"
+        }
+    },
+    {
+        "userpartPattern": "^(99999)$",
+        "routingRecord": {
+            "noAnswerTimeout": -1,
+            "no18xTimeout": -1,
+            "maxCallDuration": 70,
+            "outRuriUserpart": "",
+            "outRuriHostport": "",
+            "outCallFlow": "EchoResponder",
+            "disallowSimilar18x": false,
+            "disallowDifferent18x": false,
+            "steerMedia": false
+        }
+    },
+    {
+        "userpartPattern": "\\d+",
+        "routingRecord": {
+            "noAnswerTimeout": 60,
+            "no18xTimeout": 4,
+            "maxCallDuration": -1,
+            "outRuriUserpart": "12388",
+            "outRuriHostport": "somewhere:5097",
+            "outCallFlow": "Transparent",
+            "disallowSimilar18x": true,
+            "disallowDifferent18x": false,
+            "steerMedia": true
+        }
+    }
+]
