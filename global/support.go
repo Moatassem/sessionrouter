@@ -749,7 +749,7 @@ func RMatch(s string, rgxfp FieldPattern) []string {
 	return DicFieldRegExp[rgxfp].FindStringSubmatch(s)
 }
 
-func RReplace1(input string, rgxfp FieldPattern, replacement string) string {
+func RReplace(input string, rgxfp FieldPattern, replacement string) string {
 	return DicFieldRegExp[rgxfp].ReplaceAllString(input, replacement)
 }
 

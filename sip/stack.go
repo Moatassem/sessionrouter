@@ -294,18 +294,18 @@ func sessionGetter(sipmsg *SipMessage) (*SipSession, NewSessionType) {
 	defer LogCallStack()
 
 	callID := sipmsg.CallID
-	ss, ok := Sessions.Load(callID)
-	if ok {
-		sipses := ss
-		if sipses.IsDuplicateMessage(sipmsg) {
+	if sipses, ok := Sessions.Load(callID); ok {
+		if sipses.IsDuplicateMessage(sipmsg) || sipmsg.GetMethod() == INVITE {
 			return sipses, DuplicateMessage
 		}
 
 		return sipses, ValidRequest
 	}
+
 	if sipmsg.IsResponse() {
 		return nil, Response
 	}
+
 	sipses := NewSIPSession(sipmsg)
 	exceededRate := Sessions.Store(callID, sipses)
 	if sipmsg.ToTag != "" {

@@ -865,15 +865,11 @@ func (session *SipSession) DropMe() {
 
 func (ss *SipSession) DropMeTimed() {
 	go func() {
-		ss.WaitDuration(time.Second * time.Duration(SessionDropDelaySec))
+		time.Sleep(time.Second * time.Duration(SessionDropDelaySec))
 		ss.DropMe()
 	}()
 }
 
 func (ss *SipSession) WaitMS(ms int) {
 	time.Sleep(time.Millisecond * time.Duration(ms))
-}
-
-func (ss *SipSession) WaitDuration(dur time.Duration) {
-	time.Sleep(dur)
 }

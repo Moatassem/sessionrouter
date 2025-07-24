@@ -368,7 +368,7 @@ func (ss *SipSession) answerEchoCall(trans *Transaction, sipmsg *SipMessage) {
 
 	ss.SendCreatedResponse(trans, 180, ZeroBody())
 
-	ss.WaitDuration(EchoAnswerDelaySec * time.Second)
+	time.Sleep(EchoAnswerDelaySec * time.Second)
 
 	if !ss.IsBeingEstablished() {
 		return
