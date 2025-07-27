@@ -23,15 +23,16 @@ import (
 )
 
 // ============================================================
-func LogCallStack() {
+func LogCallStack() bool {
 	r := recover()
 	if r == nil {
-		return
+		return false
 	}
 	log.Printf("Panic Recovered! Error:\n%v", r)
 	buf := make([]byte, 1024)
 	n := runtime.Stack(buf, false)
 	log.Printf("Stack trace:\n%s\n", buf[:n])
+	return true
 }
 
 // GetNTPTimestamp returns the current time as a 64-bit NTP timestamp

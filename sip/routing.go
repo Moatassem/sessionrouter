@@ -304,8 +304,11 @@ func (ss *SipSession) HandleNSteerMediaWithPool() {
 }
 
 func (ss *SipSession) HandleNSteerMedia() {
-	defer LogCallStack()
-
+	defer func() {
+		if LogCallStack() {
+			ss.HandleNSteerMedia()
+		}
+	}()
 	if ss.MediaConn == nil {
 		return
 	}
@@ -325,8 +328,11 @@ func (ss *SipSession) HandleNSteerMedia() {
 }
 
 func (ss *SipSession) HandleEchoResponderMedia() {
-	defer LogCallStack()
-
+	defer func() {
+		if LogCallStack() {
+			ss.HandleEchoResponderMedia()
+		}
+	}()
 	if ss.MediaConn == nil {
 		return
 	}

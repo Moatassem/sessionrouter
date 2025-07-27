@@ -17,7 +17,7 @@
             "no18xTimeout": 7,
             "maxCallDuration": -1,
             "outRuriUserpart": "$1",
-            "outRuriHostport": "192.168.8.4:5098",
+            "outRuriHostport": "192.168.8.29:5098",
             "outCallFlow": "Transparent",
             "steerMedia": true
         }
