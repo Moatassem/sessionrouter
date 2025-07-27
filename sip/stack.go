@@ -295,7 +295,7 @@ func sessionGetter(sipmsg *SipMessage) (*SipSession, NewSessionType) {
 
 	callID := sipmsg.CallID
 	if sipses, ok := Sessions.Load(callID); ok {
-		if sipses.IsDuplicateMessage(sipmsg) || sipmsg.GetMethod() == INVITE {
+		if sipmsg.GetMethod() == INVITE || sipses.IsDuplicateMessage(sipmsg) {
 			return sipses, DuplicateMessage
 		}
 
