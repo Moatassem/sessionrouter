@@ -147,7 +147,7 @@ func (session *SipSession) proxifyRequestHeaders(sipmsg *SipMessage, trans *Tran
 	lnkdsl := lnkdsipmsg.StartLine
 
 	sl := sipmsg.StartLine
-	sl.HostPart = session.RoutingData.RemoteUDPSocket.String()
+	sl.HostPart = session.RemoteUDP().String()
 	sl.OriginalUP = lnkdsl.OriginalUP
 	sl.UserParameters = maps.Clone(lnkdsl.UserParameters)
 	sl.Password = lnkdsl.Password
