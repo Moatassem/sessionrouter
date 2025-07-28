@@ -1,7 +1,6 @@
 package sip
 
 import (
-	"cmp"
 	"fmt"
 	"net"
 	"time"
@@ -170,7 +169,11 @@ routeCall:
 	ss2 := NewSS(OUTBOUND)
 	ss2.EgressProxy = ProxyUdpServer
 
-	ss2.SetRemoteUDP(cmp.Or(rd.RemoteUDPSocket.UDPAddr(), ss1.RemoteUDP()))
+	if rd.RemoteUDPSocket == nil || rd.RemoteUDPSocket.UDPAddr() == nil {
+		ss2.SetRemoteUDP(ss1.RemoteUDP())
+	} else {
+		ss2.SetRemoteUDP(rd.RemoteUDPSocket.UDPAddr())
+	}
 
 	ss2.SetUDPListenser(ss1.UDPListenser())
 	ss2.RoutingData = rd
