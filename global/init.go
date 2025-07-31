@@ -16,7 +16,6 @@ func InitializeEngine() {
 			return make([]byte, RTPHeaderSize+RTPPayloadSize)
 		},
 	}
-
 }
 
 func newSyncPool(mysize, mycap int) *sync.Pool {
