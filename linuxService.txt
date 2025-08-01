@@ -1,0 +1,14 @@
+[Unit]
+Description=SRGo
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+ExecStart=/home/mtalaat/software/services/srgo
+Restart=always
+User=mtalaat
+WorkingDirectory=/home/mtalaat/software/services
+LimitNOFILE=65535
+
+[Install]
+WantedBy=multi-user.target
