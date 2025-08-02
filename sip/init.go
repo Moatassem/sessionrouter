@@ -121,6 +121,7 @@ func StartServer(asUdpskt *UdpSocket, ipv4 string, sup, kai, htp, indint int, up
 	fmt.Println("Success: UDP", serverUDPListener.LocalAddr().String())
 
 	fmt.Print("Starting SIP Probing...")
+	WtGrp.Add(1)
 	go periodicUAProbing(serverUDPListener)
 	fmt.Println("Done")
 
@@ -143,7 +144,6 @@ func ratelimitStringer() string {
 }
 
 func periodicUAProbing(conn *net.UDPConn) {
-	WtGrp.Add(1)
 	defer WtGrp.Done()
 	ticker := time.NewTicker(time.Duration(ProbingInterval) * time.Second)
 	for range ticker.C {
