@@ -18,73 +18,52 @@ import (
 )
 
 type SipSession struct {
-	Direction Direction
-
-	state     state.SessionState
-	stateLock sync.RWMutex
-
-	CallID     string
-	FromHeader string
-	ToHeader   string
-	FromTag    string
-	ToTag      string
-
-	rmtmutex sync.RWMutex // used to synchronize remote addresses and local connection
-
-	RemoteURI        string
-	RemoteContactURI string
-	remoteUDP        *net.UDPAddr
-	RemoteContactUDP *net.UDPAddr
-
-	RecordRoutes []string
-
-	Mymode mode.SessionMode
-
-	isHeld bool
-
-	RoutingData *RoutingRecord
-
-	dscmutex         sync.RWMutex
-	dialogueChanging bool
-
-	IsPRACKSupported   bool
-	IsDelayedOfferCall bool
-
+	remoteMediaUdpAddr    atomic.Value // *net.UDPAddr
+	SDPSession            *sdp.Session
+	no18xSTimer           *time.Timer
+	MediaConn             *net.UDPConn
+	udpListenser          *net.UDPConn
+	RemoteUserAgent       *SipUdpUserAgent
+	LinkedSession         *SipSession
+	RoutingData           *RoutingRecord
+	probDoneChan          chan struct{} // used to send kill signal to probingTicker handler
+	noAnsSTimer           *time.Timer
+	maxDurationTimer      *time.Timer // used on inbound sessions only
+	remoteUDP             *net.UDPAddr
+	RemoteContactUDP      *net.UDPAddr
+	probingTicker         *time.Ticker // used on inbound sessions only
+	EgressProxy           *net.UDPAddr
+	RemoteContactURI      string
+	RemoteURI             string
+	ToTag                 string
+	FromTag               string
+	ToHeader              string
+	FromHeader            string
+	CallID                string
+	Mymode                mode.SessionMode
+	RecordRoutes          []string
+	Transactions          []*Transaction
+	Relayed18xNotify      []int
+	Direction             Direction
+	state                 state.SessionState
+	SDPSessionVersion     int64
+	SDPSessionID          int64
+	dscmutex              sync.RWMutex
+	TransLock             sync.RWMutex
+	rmtmutex              sync.RWMutex // used to synchronize remote addresses and local connection
+	stateLock             sync.RWMutex
+	multiUseMutex         sync.Mutex // used for synchronizing no18x & noAns timers, probing & max duration, dropping session
+	RSeq                  uint32
+	FwdCSeq               uint32
+	BwdCSeq               uint32
+	IsDisposed            bool
+	dialogueChanging      bool
 	TransformEarlyToFinal bool
+	isHeld                bool
+	ReferSubscription     bool
+	IsDelayedOfferCall    bool
 	received18xSDP        bool
-
-	ReferSubscription bool
-	Relayed18xNotify  []int
-
-	EgressProxy *net.UDPAddr
-
-	MediaConn          *net.UDPConn
-	remoteMediaUdpAddr atomic.Value // *net.UDPAddr
-
-	udpListenser    *net.UDPConn
-	RemoteUserAgent *SipUdpUserAgent
-
-	FwdCSeq uint32
-	BwdCSeq uint32
-	RSeq    uint32
-
-	SDPSession        *sdp.Session
-	SDPSessionID      int64
-	SDPSessionVersion int64
-
-	LinkedSession *SipSession
-
-	IsDisposed    bool
-	multiUseMutex sync.Mutex // used for synchronizing no18x & noAns timers, probing & max duration, dropping session
-	no18xSTimer   *time.Timer
-	noAnsSTimer   *time.Timer
-
-	maxDurationTimer *time.Timer   // used on inbound sessions only
-	probingTicker    *time.Ticker  // used on inbound sessions only
-	probDoneChan     chan struct{} // used to send kill signal to probingTicker handler
-
-	Transactions []*Transaction
-	TransLock    sync.RWMutex
+	IsPRACKSupported      bool
 }
 
 func NewSS(dir Direction) *SipSession {

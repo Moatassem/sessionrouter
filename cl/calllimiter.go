@@ -8,8 +8,8 @@ import (
 )
 
 type CallLimiter struct {
-	rate      int          // rate limiter
 	ticker    *time.Ticker // ticker for timing
+	rate      int          // rate limiter
 	callCount int          // current call count
 	mu        sync.Mutex   // mutex for thread safety
 }

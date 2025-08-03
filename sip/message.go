@@ -16,31 +16,25 @@ import (
 )
 
 type SipMessage struct {
-	MsgType   MessageType
-	StartLine *StartLine
-	Headers   *SipHeaders
-	Body      *MessageBody
-	Bytes     []byte // used to store the generated body bytes for sending msgs
-
-	// all fields below are only set in incoming messages
-	FromHeader string
-	ToHeader   string
-	PAIHeaders []string
-	DivHeaders []string
-
-	CallID    string
-	FromTag   string
-	ToTag     string
-	ViaBranch string
-
-	ViaUdpAddr *net.UDPAddr
-
-	RCURI string
-
+	Headers       *SipHeaders
+	Body          *MessageBody
+	StartLine     *StartLine
+	ViaUdpAddr    *net.UDPAddr
+	ToTag         string
+	RCURI         string
+	FromHeader    string
+	ToHeader      string
+	ViaBranch     string
+	CallID        string
+	FromTag       string
+	Bytes         []byte // used to store the generated body bytes for sending msgs
+	DivHeaders    []string
+	PAIHeaders    []string
+	MsgType       MessageType
 	MaxFwds       int
-	CSeqNum       uint32
 	CSeqMethod    Method
 	ContentLength int // only set for incoming messages
+	CSeqNum       uint32
 }
 
 func NewRequestMessage(md Method, up string) *SipMessage {

@@ -10,31 +10,26 @@ import (
 
 type (
 	RoutingRecord struct {
-		InRegex         *regexp.Regexp    `json:"-"`
-		RemoteUDPSocket *global.UdpSocket `json:"-"`
-		IsDB            bool              `json:"-"`
-		UserpartPattern string            `json:"userpartPattern"`
-
-		NoAnswerTimeout int `json:"noAnswerTimeout"`
-		No18xTimeout    int `json:"no18xTimeout"`
-		MaxCallDuration int `json:"maxCallDuration"`
-
-		DisallowDifferent18x bool `json:"disallowDifferent18x"` // for 18x responses, if false, multiple different 18x responses can be sent
-		DisallowSimilar18x   bool `json:"disallowSimilar18x"`   // for 18x responses, if false, multiple similar 18x responses can be sent
-
-		SteerMedia bool `json:"steerMedia"`
-
-		OutRuriUserpart string `json:"outRuriUserpart"`
-		OutRuriHostport string `json:"outRuriHostport"`
-
-		OutCallFlow CallFlow `json:"outCallFlow"`
+		InRegex              *regexp.Regexp    `json:"-"`
+		RemoteUDPSocket      *global.UdpSocket `json:"-"`
+		OutCallFlow          CallFlow          `json:"outCallFlow"`
+		UserpartPattern      string            `json:"userpartPattern"`
+		OutRuriHostport      string            `json:"outRuriHostport"`
+		OutRuriUserpart      string            `json:"outRuriUserpart"`
+		MaxCallDuration      int               `json:"maxCallDuration"`
+		No18xTimeout         int               `json:"no18xTimeout"`
+		NoAnswerTimeout      int               `json:"noAnswerTimeout"`
+		DisallowDifferent18x bool              `json:"disallowDifferent18x"` // for 18x responses, if false, multiple different 18x responses can be sent
+		DisallowSimilar18x   bool              `json:"disallowSimilar18x"`   // for 18x responses, if false, multiple similar 18x responses can be sent
+		SteerMedia           bool              `json:"steerMedia"`
+		IsDB                 bool              `json:"-"`
 	}
 
 	CallFlow string
 
 	RoutingEngine struct {
-		mu       sync.RWMutex
 		routings []*RoutingRecord
+		mu       sync.RWMutex
 	}
 )
 

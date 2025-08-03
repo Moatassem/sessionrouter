@@ -14,8 +14,8 @@ import (
 var Phones = NewIPPhoneRepo()
 
 type IPPhoneRepo struct {
-	mu     sync.RWMutex
 	phones map[string]*IPPhone
+	mu     sync.RWMutex
 }
 
 func NewIPPhoneRepo() *IPPhoneRepo {
@@ -83,12 +83,12 @@ func (r *IPPhoneRepo) All() []*IPPhone {
 // =================================================================================================
 
 type IPPhone struct {
-	mu           sync.RWMutex            `json:"-"`
+	UA           *global.SipUdpUserAgent `json:"-"`
 	Extension    string                  `json:"extension"`
 	RURI         string                  `json:"ruri"`
-	UA           *global.SipUdpUserAgent `json:"-"`
 	IsReachable  bool                    `json:"isReachable"`
 	IsRegistered bool                    `json:"isRegistered"`
+	mu           sync.RWMutex            `json:"-"`
 }
 
 func (p *IPPhone) String() string {

@@ -12,45 +12,34 @@ import (
 )
 
 type Transaction struct {
-	Key       string
-	Direction Direction
-	Method    Method
-	CSeq      uint32
-	RSeq      uint32
-
-	To        string
-	From      string
-	ViaBranch string
-	RAck      string
-
-	PrackStatus PRACKStatus
-
-	IsACKed     bool
-	IsFinalized bool
-
-	IsProbing bool
-	ResetMF   bool // to be used or removed
-
-	UseRemoteURI bool // to keep using the original RURI & socket for CANCEL and ACK on non-2xx
-	ViaUdpAddr   *net.UDPAddr
-
-	RequestMessage *SipMessage
-
-	LinkedTransaction *Transaction
+	TransTime         time.Time
+	ViaUdpAddr        *net.UDPAddr
+	Timer             *time.Timer
 	ACKTransaction    *Transaction
-
-	CallID      string
-	Responses   []int
-	Lock        sync.Mutex
-	SentMessage *SipMessage
-
-	TransTime      time.Time
-	Timer          *time.Timer
-	CANCELAuxTimer *time.Timer
-
-	// retransmission
-	ReTXCount    int
-	TransTimeOut time.Duration
+	CANCELAuxTimer    *time.Timer
+	LinkedTransaction *Transaction
+	RequestMessage    *SipMessage
+	SentMessage       *SipMessage
+	From              string
+	RAck              string
+	ViaBranch         string
+	Key               string
+	To                string
+	CallID            string
+	Responses         []int
+	Method            Method
+	ReTXCount         int
+	Direction         Direction
+	PrackStatus       PRACKStatus
+	TransTimeOut      time.Duration
+	Lock              sync.Mutex
+	RSeq              uint32
+	CSeq              uint32
+	UseRemoteURI      bool
+	ResetMF           bool
+	IsProbing         bool
+	IsFinalized       bool
+	IsACKed           bool
 }
 
 func NewST() *Transaction {

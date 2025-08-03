@@ -9,21 +9,18 @@ import (
 // -------------------------------------------
 
 type StartLine struct {
-	Method         Method
+	UserParameters map[string]string
+	UriParameters  map[string]string
 	UriScheme      string
 	UserPart       string
 	OriginalUP     string
 	HostPart       string
-	UserParameters map[string]string
 	Password       string
-
-	StatusCode   int
-	ReasonPhrase string
-
-	RUri string
-
-	UriParameters map[string]string
-	UriHeaders    string
+	ReasonPhrase   string
+	RUri           string
+	UriHeaders     string
+	Method         Method
+	StatusCode     int
 }
 
 func (ssl *StartLine) BuildRURI(useOriginalUP bool) {
@@ -48,22 +45,20 @@ func (ssl *StartLine) GetStartLine(mt MessageType) string {
 }
 
 type RequestPack struct {
-	Method        Method
+	CustomHeaders SipHeaders
 	RUriUP        string
 	FromUP        string
+	Method        Method
 	Max70         bool
-	CustomHeaders SipHeaders
 	IsProbing     bool
 }
 
 type ResponsePack struct {
-	StatusCode    int
-	ReasonPhrase  string
-	ContactHeader string
-
-	CustomHeaders SipHeaders
-
+	CustomHeaders  SipHeaders
 	LinkedPRACKST  *Transaction
+	ReasonPhrase   string
+	ContactHeader  string
+	StatusCode     int
 	PRACKRequested bool
 }
 

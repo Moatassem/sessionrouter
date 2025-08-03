@@ -12,8 +12,8 @@ import (
 var MediaPortPool *MediaPool
 
 type MediaPool struct {
-	mu    sync.Mutex
 	alloc map[int]bool
+	mu    sync.Mutex
 }
 
 func NewMediaPortPool() *MediaPool {

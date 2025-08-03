@@ -69,8 +69,8 @@ func (us *UdpSocket) String() string {
 // =========================================================================================================
 
 type SystemError struct {
-	Code    int
 	Details string
+	Code    int
 }
 
 func NewError(code int, details string) error {
@@ -82,8 +82,8 @@ func (se *SystemError) Error() string {
 }
 
 type SipUdpUserAgent struct {
-	mu      sync.RWMutex
 	udpSkt  *UdpSocket
+	mu      sync.RWMutex
 	isAlive bool
 }
 

@@ -49,9 +49,9 @@ func TestCleanAndSplitHeader(t *testing.T) {
 	t.Parallel()
 
 	tests := []struct {
+		expected map[string]string
 		input    string
 		dropDQ   bool
-		expected map[string]string
 	}{
 		{
 			input:  `multipart/mixed;boundary=unique-boundary-1`,
@@ -90,8 +90,8 @@ func TestBuildUdpAddr2(t *testing.T) {
 
 	tests := []struct {
 		input    string
-		valid    bool
 		expected string
+		valid    bool
 	}{
 		{
 			input:    "somewhere:5070",
