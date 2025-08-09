@@ -18,14 +18,7 @@ func StartWS() {
 	ws := fmt.Sprintf("%s:%d", sip.ServerIPv4, HttpTcpPort)
 	srv := &http.Server{Addr: ws, Handler: r, ReadTimeout: 5 * time.Second, WriteTimeout: 10 * time.Second, IdleTimeout: 15 * time.Second}
 
-	r.HandleFunc("GET /api/v1/session", serveSession)
-	r.HandleFunc("GET /api/v1/phone", servePhone)
-	r.HandleFunc("GET /api/v1/stats", serveStats)
-	r.HandleFunc("GET /api/v1/config", serveConfig)
-	r.HandleFunc("PATCH /api/v1/config", refreshConfig)
-
-	r.Handle("GET /metrics", Prometrics.Handler())
-	r.HandleFunc("GET /", serveHome)
+	wireAPIPathHandlers(r)
 
 	WtGrp.Add(1)
 	go func() {
@@ -39,6 +32,17 @@ func StartWS() {
 	fmt.Printf("Prometheus metrics available at http://%s/metrics\n", ws)
 
 	fmt.Println("SRGo is ready to serve!")
+}
+
+func wireAPIPathHandlers(r *http.ServeMux) {
+	r.HandleFunc("GET /api/v1/session", serveSession)
+	r.HandleFunc("GET /api/v1/phone", servePhone)
+	r.HandleFunc("GET /api/v1/stats", serveStats)
+	r.HandleFunc("GET /api/v1/config", serveConfig)
+	r.HandleFunc("PATCH /api/v1/config", refreshConfig)
+
+	r.Handle("GET /metrics", Prometrics.Handler())
+	r.HandleFunc("GET /", serveHome)
 }
 
 func serveHome(w http.ResponseWriter, _ *http.Request) {
