@@ -148,7 +148,7 @@ func (session *SipSession) addOutgoingRequest(rt Method, lt *Transaction) *Trans
 				lt = session.GetUnACKedINVorReINV()
 			}
 			if lt == nil {
-				LogError(LTSIPStack, fmt.Sprintf("Unable to find (Re)INVITE transaction for Call-ID [%s]", session.CallID))
+				LogError(LTSIPStack, fmt.Sprintf("Unable to find applicable (Re)INVITE transaction for Call-ID [%s]", session.CallID))
 				return nil
 			}
 			lt.IsACKed = true
@@ -156,6 +156,10 @@ func (session *SipSession) addOutgoingRequest(rt Method, lt *Transaction) *Trans
 		case CANCEL:
 			if lt == nil {
 				lt = session.GetLastUnACKedINV(OUTBOUND)
+			}
+			if lt == nil {
+				LogError(LTSIPStack, fmt.Sprintf("Unable to find applicable INVITE transaction for Call-ID [%s]", session.CallID))
+				return nil
 			}
 			st = lt.CreateCANCELST()
 			session.AddTransaction(st)
